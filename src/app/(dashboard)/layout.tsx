@@ -1,4 +1,5 @@
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { Shell } from "@/components/layout/Shell";
 
 export default function DashboardLayout({
   children,
@@ -7,7 +8,7 @@ export default function DashboardLayout({
 }) {
   return (
     <RequireAuth>
-      {children}
+      <Shell>{children}</Shell>
     </RequireAuth>
   );
 }

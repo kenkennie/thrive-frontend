@@ -1,6 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
 
 // ── Main API client ───────────────────────────────────────────────────────────
 
@@ -50,6 +51,9 @@ api.interceptors.request.use(
 
 // ── Response interceptor — handle 401 + token refresh ────────────────────────
 
+// Endpoints that should not trigger logout on 401 (non-critical data)
+const SAFE_ENDPOINTS = ["/auth/permissions", "/settings"];
+
 let isRefreshing = false;
 let refreshQueue: Array<{
   resolve: (token: string) => void;
@@ -72,6 +76,14 @@ api.interceptors.response.use(
     };
 
     if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(parseApiError(error));
+    }
+
+    // Don't redirect for safe endpoints - just fail the request
+    const isSafeEndpoint = SAFE_ENDPOINTS.some((endpoint) =>
+      original.url?.includes(endpoint),
+    );
+    if (isSafeEndpoint) {
       return Promise.reject(parseApiError(error));
     }
 
