@@ -32,6 +32,9 @@ export function PermissionGate({
   const hasAny = usePermissionsStore((s) => s.hasAny);
   const hasAll = usePermissionsStore((s) => s.hasAll);
   const hasPermission = usePermissionsStore((s) => s.hasPermission);
+  console.log("====================================");
+  console.log(isSuperAdmin);
+  console.log("====================================");
 
   if (isSuperAdmin) return <>{children}</>;
 

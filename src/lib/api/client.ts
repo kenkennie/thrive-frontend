@@ -1,20 +1,16 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
-
-// ── Main API client ───────────────────────────────────────────────────────────
+  (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000") + "/api/v1";
 
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30_000,
   withCredentials: false,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// ── Token helpers ─────────────────────────────────────────────────────────────
+// ── Token storage ─────────────────────────────────────────────────────────────
 
 const TOKEN_KEY = "thrive:access_token";
 const REFRESH_KEY = "thrive:refresh_token";
@@ -29,17 +25,33 @@ export const tokenStorage = {
   setTokens: (access: string, refresh: string) => {
     localStorage.setItem(TOKEN_KEY, access);
     localStorage.setItem(REFRESH_KEY, refresh);
+    // FIX: also set on axios defaults immediately so subsequent calls use it
+    api.defaults.headers.common.Authorization = `Bearer ${access}`;
   },
   clear: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
+    delete api.defaults.headers.common.Authorization;
   },
 };
 
-// ── Request interceptor — attach Bearer token ─────────────────────────────────
+// ── Hydrate token from localStorage on module load ───────────────────────
+// This runs once when the module is first imported (client-side only).
+// Without this, the first render after a page refresh has no token set
+// on the axios instance even though localStorage has it.
+if (typeof window !== "undefined") {
+  const saved = localStorage.getItem(TOKEN_KEY);
+  if (saved) {
+    api.defaults.headers.common.Authorization = `Bearer ${saved}`;
+  }
+}
+
+// ── Request interceptor ───────────────────────────────────────────────────────
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // Always read fresh from localStorage (covers cases where setTokens was
+    // called but the axios default header wasn't updated)
     const token = tokenStorage.getAccess();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -49,16 +61,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// ── Response interceptor — handle 401 + token refresh ────────────────────────
-
-// Endpoints that should not trigger logout on 401 (non-critical data)
-const SAFE_ENDPOINTS = ["/auth/permissions", "/settings"];
+// ── Response interceptor — 401 + token refresh ───────────────────────────────
 
 let isRefreshing = false;
-let refreshQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (err: unknown) => void;
-}> = [];
+let refreshQueue: {
+  resolve: (t: string) => void;
+  reject: (e: unknown) => void;
+}[] = [];
 
 function processQueue(error: unknown, token: string | null): void {
   refreshQueue.forEach((p) => {
@@ -75,15 +84,12 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status !== 401 || original._retry) {
-      return Promise.reject(parseApiError(error));
-    }
-
-    // Don't redirect for safe endpoints - just fail the request
-    const isSafeEndpoint = SAFE_ENDPOINTS.some((endpoint) =>
-      original.url?.includes(endpoint),
-    );
-    if (isSafeEndpoint) {
+    // Only attempt refresh on 401, and not on the refresh endpoint itself
+    if (
+      error.response?.status !== 401 ||
+      original._retry ||
+      original.url?.includes("/auth/refresh")
+    ) {
       return Promise.reject(parseApiError(error));
     }
 
@@ -110,12 +116,12 @@ api.interceptors.response.use(
 
     try {
       const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
-        refreshToken,
+        token: refreshToken,
       });
+
       const { accessToken, refreshToken: newRefresh } = data.data ?? data;
 
       tokenStorage.setTokens(accessToken, newRefresh);
-      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
       processQueue(null, accessToken);
 
       original.headers!.Authorization = `Bearer ${accessToken}`;
@@ -152,7 +158,10 @@ export function parseApiError(error: unknown): ApiError {
 }
 
 function redirectToLogin(): void {
-  if (typeof window !== "undefined") {
+  if (
+    typeof window !== "undefined" &&
+    !window.location.pathname.startsWith("/login")
+  ) {
     window.location.href = "/login";
   }
 }

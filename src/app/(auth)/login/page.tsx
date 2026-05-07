@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Eye, EyeOff, Sparkles } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { loginSchema, type LoginSchema } from "@/validations/auth.schema";
 import { useAuthStore, useIsLoggedIn } from "@/stores/auth.store";
 import { cn } from "@/lib/utils";
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/";
@@ -32,9 +31,9 @@ function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     try {
+      // FIX: login() in auth.store now sets tokens AND cookie before updating user state.
+      // No need to set the cookie here — doing it twice caused a timing race.
       await login(data.email, data.password);
-      // Set session cookie for middleware
-      document.cookie = `thrive:session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
       toast.success("Welcome back!");
       router.replace(redirect);
     } catch (err: any) {
@@ -49,7 +48,6 @@ function LoginForm() {
         className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative overflow-hidden"
         style={{ backgroundColor: "var(--brand-navy)" }}
       >
-        {/* Decorative circles */}
         <div
           className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-10"
           style={{ border: "60px solid var(--brand-gold)" }}
@@ -59,36 +57,32 @@ function LoginForm() {
           style={{ border: "40px solid var(--brand-gold)" }}
         />
 
-        {/* Logo */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "var(--brand-gold)" }}
+        <div className="relative z-10 flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: "var(--brand-gold)" }}
+          >
+            <Sparkles
+              className="w-5 h-5"
+              style={{ color: "var(--brand-navy)" }}
+            />
+          </div>
+          <div>
+            <p
+              className="font-semibold text-lg leading-tight"
+              style={{ color: "var(--brand-gold)" }}
             >
-              <Sparkles
-                className="w-5 h-5"
-                style={{ color: "var(--brand-navy)" }}
-              />
-            </div>
-            <div>
-              <p
-                className="font-semibold text-lg leading-tight"
-                style={{ color: "var(--brand-gold)" }}
-              >
-                Thrive Aesthetics
-              </p>
-              <p
-                className="text-xs opacity-60"
-                style={{ color: "var(--brand-gold)" }}
-              >
-                Kenya
-              </p>
-            </div>
+              Thrive Aesthetics
+            </p>
+            <p
+              className="text-xs opacity-60"
+              style={{ color: "var(--brand-gold)" }}
+            >
+              Kenya
+            </p>
           </div>
         </div>
 
-        {/* Tagline */}
         <div className="relative z-10">
           <h1
             className="text-5xl font-light leading-tight mb-6"
@@ -113,7 +107,6 @@ function LoginForm() {
           </p>
         </div>
 
-        {/* Bottom quote */}
         <div
           className="relative z-10 pt-6 border-t opacity-40"
           style={{ borderColor: "var(--brand-gold)" }}
@@ -127,9 +120,8 @@ function LoginForm() {
         </div>
       </div>
 
-      {/* Right — login form */}
+      {/* Right — form */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-background">
-        {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-3 mb-10">
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center"
@@ -159,7 +151,6 @@ function LoginForm() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-5"
           >
-            {/* Email */}
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
@@ -176,8 +167,7 @@ function LoginForm() {
                 {...form.register("email")}
                 className={cn(
                   "w-full h-10 px-3 rounded-lg border bg-background text-sm text-foreground",
-                  "placeholder:text-muted-foreground",
-                  "focus:outline-none focus:ring-2 transition-shadow",
+                  "placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-shadow",
                   form.formState.errors.email
                     ? "border-destructive focus:ring-destructive/20"
                     : "border-input focus:ring-ring/30",
@@ -190,7 +180,6 @@ function LoginForm() {
               )}
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label
@@ -201,7 +190,7 @@ function LoginForm() {
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-xs hover:underline transition-colors"
+                  className="text-xs hover:underline"
                   style={{ color: "var(--brand-gold)" }}
                 >
                   Forgot password?
@@ -216,8 +205,7 @@ function LoginForm() {
                   {...form.register("password")}
                   className={cn(
                     "w-full h-10 px-3 pr-10 rounded-lg border bg-background text-sm text-foreground",
-                    "placeholder:text-muted-foreground",
-                    "focus:outline-none focus:ring-2 transition-shadow",
+                    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-shadow",
                     form.formState.errors.password
                       ? "border-destructive focus:ring-destructive/20"
                       : "border-input focus:ring-ring/30",
@@ -242,15 +230,10 @@ function LoginForm() {
               )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className={cn(
-                "w-full h-10 rounded-lg text-sm font-medium transition-all",
-                "flex items-center justify-center gap-2",
-                "disabled:opacity-60 disabled:cursor-not-allowed",
-              )}
+              className="w-full h-10 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: "var(--brand-gold)",
                 color: "var(--brand-navy)",
@@ -258,8 +241,7 @@ function LoginForm() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing in…
+                  <Loader2 className="w-4 h-4 animate-spin" /> Signing in…
                 </>
               ) : (
                 "Sign in"
@@ -268,29 +250,17 @@ function LoginForm() {
           </form>
 
           <p className="text-center text-xs text-muted-foreground mt-8">
-            Staff access only. If you need help, contact{" "}
+            Staff access only. Contact{" "}
             <a
               href="mailto:hello@thriveaesthetics.co.ke"
               className="underline"
             >
               support
-            </a>
-            .
+            </a>{" "}
+            for help.
           </p>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
   );
 }

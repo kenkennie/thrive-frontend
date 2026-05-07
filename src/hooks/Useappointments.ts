@@ -18,6 +18,7 @@ export function useAppointmentsList(query: ListAppointmentsQuery) {
   return useQuery({
     queryKey: APPT_KEYS.list(query),
     queryFn: () => appointmentsApi.list(query).then((r) => r.data),
+    placeholderData: (prev) => prev, // keep previous page data while fetching next
   });
 }
 
@@ -40,22 +41,20 @@ export function useDailySchedule(date: string, doctorId?: string) {
   });
 }
 
-// ── Status transition mutations ───────────────────────────────────────────────
+// ── Status mutations ──────────────────────────────────────────────────────────
 
 function useStatusMutation(
   action: (id: string, ...args: any[]) => Promise<any>,
-  successMsg: string,
+  msg: string,
 ) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: action,
     onSuccess: () => {
-      toast.success(successMsg);
+      toast.success(msg);
       qc.invalidateQueries({ queryKey: APPT_KEYS.all });
     },
-    onError: (err: any) => {
-      toast.error(err?.message ?? "Action failed");
-    },
+    onError: (err: any) => toast.error(err?.message ?? "Action failed"),
   });
 }
 
@@ -64,22 +63,16 @@ export const useConfirmAppointment = () =>
     (id) => appointmentsApi.confirm(id),
     "Appointment confirmed",
   );
-
 export const useArriveAppointment = () =>
   useStatusMutation((id) => appointmentsApi.arrive(id), "Client arrived");
-
 export const useCheckInAppointment = () =>
   useStatusMutation((id) => appointmentsApi.checkIn(id), "Client checked in");
-
 export const useStartAppointment = () =>
   useStatusMutation((id) => appointmentsApi.start(id), "Session started");
-
 export const useCompleteAppointment = () =>
   useStatusMutation((id) => appointmentsApi.complete(id), "Session completed");
-
 export const useNoShowAppointment = () =>
   useStatusMutation((id) => appointmentsApi.noShow(id), "Marked as no-show");
-
 export const useCancelAppointment = () =>
   useStatusMutation(
     ({ id, reason }: { id: string; reason?: string }) =>
@@ -95,8 +88,21 @@ export const useCreateAppointment = () => {
       toast.success("Appointment booked");
       qc.invalidateQueries({ queryKey: APPT_KEYS.all });
     },
-    onError: (err: any) => {
-      toast.error(err?.message ?? "Failed to create appointment");
+    onError: (err: any) =>
+      toast.error(err?.message ?? "Failed to book appointment"),
+  });
+};
+
+export const useUpdateAppointment = (id: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: any) => appointmentsApi.update(id, dto),
+    onSuccess: () => {
+      toast.success("Appointment updated");
+      qc.invalidateQueries({ queryKey: APPT_KEYS.all });
+      qc.invalidateQueries({ queryKey: APPT_KEYS.detail(id) });
     },
+    onError: (err: any) =>
+      toast.error(err?.message ?? "Failed to update appointment"),
   });
 };

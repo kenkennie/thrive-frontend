@@ -6,11 +6,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { usePermissionsStore } from "@/stores/permissions.store";
 import { useSettingsStore } from "@/stores/settings.store";
 import { useAuthStore } from "@/stores/auth.store";
+import { tokenStorage } from "@/lib/api/client";
 
 const queryClientConfig = {
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 min
+      staleTime: 1000 * 60 * 2,
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -25,14 +26,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const clearPermissions = usePermissionsStore((s) => s.clear);
   const loadSettings = useSettingsStore((s) => s.load);
 
-  // Load permissions and settings when user is authenticated
   useEffect(() => {
-    if (user) {
-      loadPermissions();
-      loadSettings();
-    } else {
+    if (!user) {
       clearPermissions();
+      return;
     }
+
+    // Only load permissions and settings if we actually have a token.
+    // Without this check, Zustand rehydrates the user from localStorage but
+    // the token may not yet be set on the axios instance, causing 401 loops.
+    const token = tokenStorage.getAccess();
+    if (!token) return;
+
+    loadPermissions();
+    loadSettings();
   }, [user?.id]);
 
   return (

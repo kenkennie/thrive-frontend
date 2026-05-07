@@ -1,18 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { tokenStorage } from "@/lib/api/client";
-import authApi, { type AuthResponse } from "@/lib/api/auth";
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  fullName: string;
-  avatarUrl: string | null;
-  isSuperAdmin: boolean;
-  roles: string[];
-}
+import authApi, { type AuthUser } from "@/lib/api/auth";
 
 interface AuthState {
   user: AuthUser | null;
@@ -20,7 +9,6 @@ interface AuthState {
   isLoggingOut: boolean;
   error: string | null;
 
-  // Actions
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
@@ -28,11 +16,9 @@ interface AuthState {
   clearError: () => void;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isLoading: false,
       isLoggingOut: false,
@@ -41,14 +27,25 @@ export const useAuthStore = create<AuthState>()(
       login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-          const { data } = await authApi.login({ email, password });
-          const payload = data.data ?? (data as unknown as AuthResponse);
+          // authApi.login returns AuthResponse directly (normalised)
+          const payload = await authApi.login({ email, password });
 
+          // Set tokens first — updates axios default header immediately
           tokenStorage.setTokens(payload.accessToken, payload.refreshToken);
 
+          // Set session cookie for Next.js middleware
+          if (typeof document !== "undefined") {
+            document.cookie =
+              "thrive:session=1; path=/; max-age=" +
+              60 * 60 * 24 * 7 +
+              "; SameSite=Lax";
+          }
+
           set({ user: payload.user, isLoading: false, error: null });
-        } catch (err: any) {
-          const message = err?.message ?? "Login failed. Please try again.";
+        } catch (err) {
+          const message =
+            (err as any)?.message ??
+            "Login failed. Please check your credentials.";
           set({ isLoading: false, error: message });
           throw err;
         }
@@ -59,25 +56,26 @@ export const useAuthStore = create<AuthState>()(
         try {
           await authApi.logout();
         } catch {
-          // Silently fail — still clear local state
+          /* swallow */
         } finally {
           tokenStorage.clear();
+          if (typeof document !== "undefined") {
+            document.cookie = "thrive:session=; path=/; max-age=0";
+          }
           set({ user: null, isLoggingOut: false, error: null });
-          window.location.href = "/login";
+          if (typeof window !== "undefined") window.location.href = "/login";
         }
       },
 
       setUser: (user) => set({ user }),
-
       refreshUser: async () => {
         try {
           const { data } = await authApi.me();
           set({ user: data.data });
         } catch {
-          // Token invalid — let the interceptor handle redirect
+          /* let interceptor handle */
         }
       },
-
       clearError: () => set({ error: null }),
     }),
     {
@@ -86,8 +84,6 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-
-// ── Convenience selectors ─────────────────────────────────────────────────────
 
 export const useUser = () => useAuthStore((s) => s.user);
 export const useIsLoggedIn = () => useAuthStore((s) => !!s.user);
