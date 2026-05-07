@@ -1,4 +1,7 @@
 import api from "./client";
+import type { PaginatedResponse, ApiResponse } from "@/types/api";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Client {
   id: string;
@@ -19,6 +22,52 @@ export interface Client {
   skinType?: { id: string; label: string };
 }
 
+export interface ClientIntakeForm {
+  id: string;
+  completedAt: string;
+  skinConcerns?: string;
+  currentMedications?: string;
+  knownAllergies?: string;
+  medicalConditions?: string;
+  isPregnant: boolean;
+  hasActiveSkinInfection: boolean;
+  hasRecentSunExposure: boolean;
+  onBloodThinners: boolean;
+  hasHerpesHistory: boolean;
+  treatmentConsentGiven: boolean;
+  service?: { name: string };
+}
+
+export interface TreatmentSession {
+  id: string;
+  sessionNumber?: number;
+  status: string;
+  createdAt: string;
+  treatmentPerformed?: string;
+  productsUsed?: string;
+  aftercareInstructions?: string;
+  followUpRequired: boolean;
+  followUpDate?: string;
+  visibleToClient: boolean;
+  doctor: { id: string; fullName: string };
+  appointment: {
+    date: string;
+    startTime: string;
+    appointmentServices: { service: { id: string; name: string } }[];
+  };
+  treatmentPlan?: { id: string; title: string };
+}
+
+export interface BeforeAfterPhoto {
+  id: string;
+  photoUrl: string;
+  thumbnailUrl?: string;
+  type: "BEFORE" | "AFTER" | "PROGRESS";
+  caption?: string;
+  consentGiven: boolean;
+  uploadedAt: string;
+}
+
 export interface CreateClientDto {
   fullName: string;
   phoneNumber: string;
@@ -30,6 +79,8 @@ export interface CreateClientDto {
   medicalNotes?: string;
 }
 
+export interface UpdateClientDto extends Partial<CreateClientDto> {}
+
 export interface ListClientsQuery {
   search?: string;
   isActive?: boolean;
@@ -37,43 +88,64 @@ export interface ListClientsQuery {
   limit?: number;
 }
 
-// Named functions — avoids the .list is not a function error
-export const listClients = (params?: ListClientsQuery) =>
-  api.get("/clients", { params });
+// ─── API ──────────────────────────────────────────────────────────────────────
 
-export const getClient = (id: string) => api.get(`/clients/${id}`);
-
-export const createClient = (dto: CreateClientDto) => api.post("/clients", dto);
-
-export const updateClient = (id: string, dto: Partial<CreateClientDto>) =>
-  api.patch(`/clients/${id}`, dto);
-
-export const recordPhotoConsent = (id: string, given: boolean) =>
-  api.post(`/clients/${id}/photo-consent`, { given });
-
-export const getClientHistory = (id: string) =>
-  api.get(`/clients/${id}/treatment-history`);
-
-export const getClientIntakeForms = (id: string) =>
-  api.get(`/clients/${id}/intake-forms`);
-
-export const getClientPhotos = (id: string, params?: any) =>
-  api.get(`/clients/${id}/photos`, { params });
-
-// Default export as object (for backward compat)
 const clientsApi = {
-  list: listClients,
-  getById: getClient,
-  create: createClient,
-  update: updateClient,
-  recordPhotoConsent,
-  getTreatmentHistory: getClientHistory,
-  getIntakeForms: getClientIntakeForms,
-  getPhotos: getClientPhotos,
-  getInvoices: (id: string) =>
-    api.get("/invoices", { params: { clientId: id } }),
-  getAppointments: (id: string, params?: any) =>
+  list: (params?: ListClientsQuery) =>
+    api.get<PaginatedResponse<Client>>("/clients", { params }),
+
+  getById: (id: string) => api.get<ApiResponse<Client>>(`/clients/${id}`),
+
+  create: (dto: CreateClientDto) =>
+    api.post<ApiResponse<Client>>("/clients", dto),
+
+  update: (id: string, dto: UpdateClientDto) =>
+    api.patch<ApiResponse<Client>>(`/clients/${id}`, dto),
+
+  deactivate: (id: string) =>
+    api.delete<ApiResponse<{ message: string }>>(`/clients/${id}`),
+
+  // Treatment history
+  getTreatmentHistory: (id: string) =>
+    api.get<ApiResponse<TreatmentSession[]>>(
+      `/clients/${id}/treatment-history`,
+    ),
+
+  // Intake forms
+  getIntakeForms: (id: string) =>
+    api.get<ApiResponse<ClientIntakeForm[]>>(`/clients/${id}/intake-forms`),
+
+  // Photos
+  getPhotos: (
+    id: string,
+    params?: { type?: string; page?: number; limit?: number },
+  ) =>
+    api.get<PaginatedResponse<BeforeAfterPhoto>>(`/clients/${id}/photos`, {
+      params,
+    }),
+
+  uploadPhoto: (
+    id: string,
+    dto: {
+      photoUrl: string;
+      type: "BEFORE" | "AFTER" | "PROGRESS";
+      caption?: string;
+      consentGiven: boolean;
+      treatmentSessionId?: string;
+    },
+  ) => api.post<ApiResponse<BeforeAfterPhoto>>(`/clients/${id}/photos`, dto),
+
+  // Photo consent
+  recordPhotoConsent: (id: string, given: boolean) =>
+    api.post<ApiResponse<Client>>(`/clients/${id}/photo-consent`, { given }),
+
+  // Appointments
+  getAppointments: (id: string, params?: { page?: number; limit?: number }) =>
     api.get(`/clients/${id}/appointments`, { params }),
+
+  // Invoices
+  getInvoices: (id: string, params?: { page?: number; limit?: number }) =>
+    api.get(`/invoices`, { params: { clientId: id, ...params } }),
 };
 
 export default clientsApi;
