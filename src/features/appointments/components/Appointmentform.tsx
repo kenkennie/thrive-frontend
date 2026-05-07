@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, X, Search, ChevronDown } from "lucide-react";
+import { Loader2, Plus, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import servicesApi, { type Service, type Doctor } from "@/lib/api/services";
-import clientsApi from "@/lib/api/clients";
+import servicesApi from "@/lib/api/services";
+import { listClients } from "@/lib/api/clients";
 import api from "@/lib/api/client";
+import { extractArray } from "@/lib/api/response";
 import type { Appointment } from "@/lib/api/appointments";
 
 // ── Schema ────────────────────────────────────────────────────────────────────
@@ -35,14 +36,25 @@ const schema = z.object({
     .min(1, "At least one service is required"),
 });
 
-type Schema = z.infer<typeof schema>;
+export type AppointmentFormSchema = z.infer<typeof schema>;
 
 interface Props {
   appointment?: Appointment;
-  onSubmit: (data: Schema) => Promise<void>;
+  onSubmit: (data: AppointmentFormSchema) => Promise<void>;
   isLoading?: boolean;
   onCancel?: () => void;
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const inputCls = (err?: string) =>
+  cn(
+    "w-full h-10 px-3 rounded-lg border bg-background text-sm text-foreground",
+    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-shadow",
+    err
+      ? "border-destructive focus:ring-destructive/20"
+      : "border-input focus:ring-ring/30",
+  );
 
 // ── Client search ─────────────────────────────────────────────────────────────
 
@@ -61,11 +73,13 @@ function ClientSearch({
 
   const { data } = useQuery({
     queryKey: ["clients", "search", q],
-    queryFn: () => clientsApi.list({ search: q, limit: 8 }).then((r) => r.data),
+    // FIX: use named function, not clientsApi.list (which was undefined)
+    queryFn: () => listClients({ search: q, limit: 8 }),
     enabled: q.length >= 1,
+    select: (res) => extractArray(res),
   });
 
-  const clients = data?.data ?? [];
+  const clients = data ?? [];
 
   return (
     <div className="relative">
@@ -85,7 +99,7 @@ function ClientSearch({
             setLabel("");
             setOpen(true);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => q && setOpen(true)}
           placeholder="Search client by name or phone…"
           className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
         />
@@ -98,14 +112,15 @@ function ClientSearch({
               setQ("");
             }}
           >
-            <X className="w-3.5 h-3.5 text-muted-foreground" />
+            <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
           </button>
         )}
       </div>
       {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+
       {open && clients.length > 0 && (
-        <div className="absolute left-0 right-0 top-11 bg-card border border-border rounded-xl shadow-xl z-40 overflow-hidden">
-          {clients.map((c) => (
+        <div className="absolute left-0 right-0 top-11 bg-card border border-border rounded-xl shadow-xl z-40 overflow-hidden max-h-52 overflow-y-auto">
+          {clients.map((c: any) => (
             <button
               key={c.id}
               type="button"
@@ -148,72 +163,63 @@ function ClientSearch({
 
 function ServiceRow({
   index,
-  services = [],
+  servicesList,
   onRemove,
   form,
 }: {
   index: number;
-  services: Service[];
+  servicesList: any[];
   onRemove: () => void;
   form: any;
 }) {
   const serviceId = form.watch(`services.${index}.serviceId`);
-  const selected = Array.isArray(services)
-    ? services.find((s) => s.id === serviceId)
-    : undefined;
-  const variants = selected?.variants ?? [];
+  // FIX: always guard with Array.isArray
+  const services = Array.isArray(servicesList) ? servicesList : [];
+  const selected = services.find((s) => s.id === serviceId);
+  const variants = Array.isArray(selected?.variants) ? selected.variants : [];
 
   return (
     <div className="flex gap-2 items-start">
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
-        {/* Service */}
-        <div>
-          <select
-            {...form.register(`services.${index}.serviceId`)}
-            className="w-full h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 cursor-pointer"
-          >
-            <option value="">Select service…</option>
-            {(Array.isArray(services) ? services : []).map((s) => (
-              <option
-                key={s.id}
-                value={s.id}
-              >
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          {...form.register(`services.${index}.serviceId`)}
+          className="h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 cursor-pointer"
+        >
+          <option value="">Select service…</option>
+          {services.map((s) => (
+            <option
+              key={s.id}
+              value={s.id}
+            >
+              {s.name}
+            </option>
+          ))}
+        </select>
 
-        {/* Variant */}
-        <div>
-          <select
-            {...form.register(`services.${index}.variantId`)}
-            disabled={!variants.length}
-            className="w-full h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 cursor-pointer disabled:opacity-40"
-          >
-            <option value="">No variant</option>
-            {variants.map((v) => (
-              <option
-                key={v.id}
-                value={v.id}
-              >
-                {v.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          {...form.register(`services.${index}.variantId`)}
+          disabled={!variants.length}
+          className="h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none cursor-pointer disabled:opacity-40"
+        >
+          <option value="">No variant</option>
+          {variants.map((v: any) => (
+            <option
+              key={v.id}
+              value={v.id}
+            >
+              {v.name}
+            </option>
+          ))}
+        </select>
 
-        {/* Duration override */}
-        <div>
-          <input
-            type="number"
-            placeholder={`Duration (${selected?.durationMin ?? "—"} min)`}
-            {...form.register(`services.${index}.durationMin`, {
-              valueAsNumber: true,
-            })}
-            className="w-full h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
-          />
-        </div>
+        <input
+          type="number"
+          placeholder={`Duration min (default ${selected?.durationMin ?? "—"})`}
+          {...form.register(`services.${index}.durationMin`, {
+            valueAsNumber: true,
+          })}
+          className="h-9 px-2 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
+        />
       </div>
       <button
         type="button"
@@ -228,22 +234,13 @@ function ServiceRow({
 
 // ── Main form ─────────────────────────────────────────────────────────────────
 
-const inputCls = (err?: string) =>
-  cn(
-    "w-full h-10 px-3 rounded-lg border bg-background text-sm text-foreground",
-    "placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-shadow",
-    err
-      ? "border-destructive focus:ring-destructive/20"
-      : "border-input focus:ring-ring/30",
-  );
-
 export function AppointmentForm({
   appointment,
   onSubmit,
   isLoading,
   onCancel,
 }: Props) {
-  const form = useForm<Schema>({
+  const form = useForm<AppointmentFormSchema>({
     resolver: zodResolver(schema),
     defaultValues: {
       clientId: appointment?.client?.id ?? "",
@@ -255,7 +252,7 @@ export function AppointmentForm({
       internalNotes: appointment?.internalNotes ?? "",
       services: appointment?.appointmentServices?.map((s) => ({
         serviceId: s.service.id,
-        variantId: s.variant?.name ?? "",
+        variantId: "",
         quantity: s.quantity,
         durationMin: s.durationMin ?? undefined,
       })) ?? [{ serviceId: "", variantId: "", quantity: 1 }],
@@ -268,62 +265,53 @@ export function AppointmentForm({
   });
   const { errors } = form.formState;
 
+  const watchedServices = form.watch("services");
   const doctorId = form.watch("doctorId");
   const date = form.watch("date");
-  const services = form.watch("services");
 
-  // Load services list
+  // Services list — use extractArray globally
   const { data: servicesData } = useQuery({
     queryKey: ["services", "active"],
-    queryFn: () =>
-      servicesApi
-        .list({ isActive: true, limit: 100 })
-        .then((r) => r.data.data ?? []),
+    queryFn: () => servicesApi.list({ isActive: true, limit: 100 }),
+    select: (res) => extractArray(res),
   });
-  const servicesList: Service[] = servicesData ?? [];
+  const servicesList = servicesData ?? [];
 
-  // Load doctors — first from selected service, then all doctors
-  const firstServiceId = services[0]?.serviceId;
+  // Doctors — from first selected service, fallback to all staff doctors
+  const firstServiceId = watchedServices[0]?.serviceId;
   const { data: serviceDoctors } = useQuery({
     queryKey: ["service-doctors", firstServiceId],
-    queryFn: () =>
-      servicesApi.getDoctors(firstServiceId).then((r) => r.data.data ?? []),
+    queryFn: () => servicesApi.getDoctors(firstServiceId),
     enabled: !!firstServiceId,
+    select: (res) => extractArray(res),
   });
 
-  const { data: allDoctorsData } = useQuery({
+  const { data: allDoctors } = useQuery({
     queryKey: ["all-doctors"],
-    queryFn: () =>
-      api
-        .get<any>("/users?role=doctor&limit=50")
-        .then((r) => r.data?.data ?? []),
+    queryFn: () => api.get("/users?role=doctor&limit=50"),
+    select: (res) => extractArray(res),
   });
 
-  const doctors: Doctor[] =
-    (serviceDoctors?.length ? serviceDoctors : allDoctorsData) ?? [];
+  const doctors = (serviceDoctors?.length ? serviceDoctors : allDoctors) ?? [];
 
-  // Load availability slots
-  const serviceIds = services.map((s) => s.serviceId).filter(Boolean);
-  const { data: availData } = useQuery({
+  // Availability slots
+  const serviceIds = watchedServices.map((s) => s.serviceId).filter(Boolean);
+  const { data: slots } = useQuery({
     queryKey: ["availability", serviceIds, doctorId, date],
-    queryFn: () =>
-      servicesApi
-        .getAvailability({ serviceIds, doctorId, date })
-        .then((r) => r.data.data ?? []),
+    queryFn: () => servicesApi.getAvailability({ serviceIds, doctorId, date }),
     enabled: serviceIds.length > 0 && !!doctorId && !!date,
+    select: (res) => extractArray(res),
   });
+  const availableSlots = (slots ?? [])
+    .filter((s: any) => s.available)
+    .map((s: any) => s.time);
 
-  const availableSlots = Array.isArray(availData)
-    ? availData.filter((s: any) => s.available).map((s: any) => s.time)
-    : [];
-
-  // Load booking sources
-  const { data: sourcesData } = useQuery({
+  // Booking sources
+  const { data: sources } = useQuery({
     queryKey: ["booking-sources"],
-    queryFn: () =>
-      api.get<any>("/settings/booking-sources").then((r) => r.data?.data ?? []),
+    queryFn: () => api.get("/settings/booking-sources"),
+    select: (res) => extractArray(res),
   });
-  const sources = sourcesData ?? [];
 
   return (
     <form
@@ -365,17 +353,15 @@ export function AppointmentForm({
             <ServiceRow
               key={field.id}
               index={index}
-              services={servicesList ?? []}
+              servicesList={servicesList}
               onRemove={() => remove(index)}
               form={form}
             />
           ))}
         </div>
-        {errors.services && (
+        {errors.services?.root && (
           <p className="text-xs text-destructive">
-            {typeof errors.services === "object" && "message" in errors.services
-              ? (errors.services as any).message
-              : "Please fix service errors"}
+            {errors.services.root.message}
           </p>
         )}
       </div>
@@ -388,7 +374,7 @@ export function AppointmentForm({
           className={cn(inputCls(errors.doctorId?.message), "cursor-pointer")}
         >
           <option value="">Select doctor…</option>
-          {doctors.map((d: Doctor) => (
+          {(Array.isArray(doctors) ? doctors : []).map((d: any) => (
             <option
               key={d.id}
               value={d.id}
@@ -457,7 +443,7 @@ export function AppointmentForm({
       {/* Document choice */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground">Document</label>
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           {(["INVOICE", "QUOTE", "NONE"] as const).map((choice) => (
             <label
               key={choice}
@@ -475,8 +461,8 @@ export function AppointmentForm({
         </div>
       </div>
 
-      {/* Booking source */}
-      {sources.length > 0 && (
+      {/* Source */}
+      {(Array.isArray(sources) ? sources : []).length > 0 && (
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">
             Booking source
@@ -486,7 +472,7 @@ export function AppointmentForm({
             className={cn(inputCls(), "cursor-pointer")}
           >
             <option value="">Select source…</option>
-            {sources.map((s: any) => (
+            {(sources as any[]).map((s) => (
               <option
                 key={s.id}
                 value={s.id}
@@ -507,7 +493,7 @@ export function AppointmentForm({
           <textarea
             {...form.register("clientNotes")}
             rows={3}
-            placeholder="Notes visible to client…"
+            placeholder="Visible to client…"
             className={cn(inputCls(), "h-auto py-2 resize-none")}
           />
         </div>
@@ -518,7 +504,7 @@ export function AppointmentForm({
           <textarea
             {...form.register("internalNotes")}
             rows={3}
-            placeholder="Staff-only notes…"
+            placeholder="Staff only…"
             className={cn(inputCls(), "h-auto py-2 resize-none")}
           />
         </div>

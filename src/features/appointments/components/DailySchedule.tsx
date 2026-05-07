@@ -7,7 +7,7 @@ import type { Appointment } from "@/lib/api/appointments";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { AppointmentCard } from "./Appointmentcard";
 import { AppointmentDetail } from "./AppointmentDetail";
-import { useDailySchedule } from "@/hooks/useAppointment";
+import { useDailySchedule } from "../hooks/useAppointments";
 
 // Generate hours 07:00 → 20:00
 const HOURS = Array.from({ length: 14 }, (_, i) => {

@@ -10,7 +10,7 @@ import {
   useCancelAppointment,
   useStartAppointment,
   useConfirmAppointment,
-} from "@/hooks/useAppointment";
+} from "@/features/appointments/hooks/useAppointments";
 import type { Appointment } from "@/lib/api/appointments";
 import {
   CheckCircle2,

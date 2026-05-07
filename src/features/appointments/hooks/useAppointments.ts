@@ -100,3 +100,17 @@ export const useCreateAppointment = () => {
     },
   });
 };
+
+export const useUpdateAppointment = (id: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: any) => appointmentsApi.update(id, dto),
+    onSuccess: () => {
+      toast.success("Appointment updated");
+      qc.invalidateQueries({ queryKey: APPT_KEYS.all });
+      qc.invalidateQueries({ queryKey: APPT_KEYS.detail(id) });
+    },
+    onError: (err: any) =>
+      toast.error(err?.message ?? "Failed to update appointment"),
+  });
+};
