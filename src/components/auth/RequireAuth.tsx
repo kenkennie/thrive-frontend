@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/auth.store";
+import { useAuthStore, useHasHydrated } from "@/stores/auth.store";
 import { usePermissionsStore } from "@/stores/permissions.store";
 import { Loader2 } from "lucide-react";
 
@@ -21,20 +21,33 @@ export function RequireAuth({
 }: RequireAuthProps) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const hasHydrated = useHasHydrated(); // ← NEW
   const isLoaded = usePermissionsStore((s) => s.isLoaded);
   const hasAny = usePermissionsStore((s) => s.hasAny);
 
   useEffect(() => {
+    if (!hasHydrated) return; // don't act until localStorage has been read
+
     if (!user) {
       router.replace("/login");
       return;
     }
-    if (permissions && isLoaded && !user.isSuperAdmin) {
-      const allowed = hasAny(permissions);
-      if (!allowed) router.replace(fallback);
-    }
-  }, [user, isLoaded]);
 
+    if (permissions && isLoaded && !user.isSuperAdmin) {
+      if (!hasAny(permissions)) router.replace(fallback);
+    }
+  }, [hasHydrated, user, isLoaded]);
+
+  // Still reading localStorage — render nothing (no flash, no redirect)
+  if (!hasHydrated) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Hydrated but no user — useEffect will redirect, show spinner while it does
   if (!user) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen">

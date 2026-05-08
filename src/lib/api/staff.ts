@@ -74,12 +74,12 @@ const staffApi = {
   resetPassword: (id: string) => api.post(`/users/${id}/reset-password`),
 
   // Roles
-  listRoles: () => api.get("/roles"),
-  getRole: (id: string) => api.get(`/roles/${id}`),
-  createRole: (dto: CreateRoleDto) => api.post("/roles", dto),
+  listRoles: () => api.get("/permissions/roles"),
+  getRole: (id: string) => api.get(`/permissions/roles/${id}`),
+  createRole: (dto: CreateRoleDto) => api.post("/permissions/roles", dto),
   updateRole: (id: string, dto: Partial<CreateRoleDto>) =>
-    api.patch(`/roles/${id}`, dto),
-  deleteRole: (id: string) => api.delete(`/roles/${id}`),
+    api.patch(`/permissions/roles/${id}`, dto),
+  deleteRole: (id: string) => api.delete(`/permissions/roles/${id}`),
 
   // Role assignments
   assignRole: (userId: string, roleId: string) =>

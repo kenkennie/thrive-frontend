@@ -8,12 +8,14 @@ interface AuthState {
   isLoading: boolean;
   isLoggingOut: boolean;
   error: string | null;
+  _hasHydrated: boolean; // ← add this
 
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
   refreshUser: () => Promise<void>;
   clearError: () => void;
+  setHasHydrated: (v: boolean) => void; // ← add this
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -23,17 +25,16 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       isLoggingOut: false,
       error: null,
+      _hasHydrated: false, // ← starts false
+
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
 
       login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-          // authApi.login returns AuthResponse directly (normalised)
           const payload = await authApi.login({ email, password });
-
-          // Set tokens first — updates axios default header immediately
           tokenStorage.setTokens(payload.accessToken, payload.refreshToken);
 
-          // Set session cookie for Next.js middleware
           if (typeof document !== "undefined") {
             document.cookie =
               "thrive:session=1; path=/; max-age=" +
@@ -81,6 +82,10 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "thrive:auth",
       partialize: (state) => ({ user: state.user }),
+      // ← this fires once rehydration from localStorage is done
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );
@@ -89,3 +94,4 @@ export const useUser = () => useAuthStore((s) => s.user);
 export const useIsLoggedIn = () => useAuthStore((s) => !!s.user);
 export const useAuthLoading = () => useAuthStore((s) => s.isLoading);
 export const useAuthError = () => useAuthStore((s) => s.error);
+export const useHasHydrated = () => useAuthStore((s) => s._hasHydrated); // ← export

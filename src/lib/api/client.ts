@@ -1,6 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -25,12 +25,14 @@ export const tokenStorage = {
     localStorage.setItem(TOKEN_KEY, access);
     localStorage.setItem(REFRESH_KEY, refresh);
     // FIX: also set on axios defaults immediately so subsequent calls use it
-    api.defaults.headers.common.Authorization = `Bearer ${access}`;
+    document.cookie = `thrive:session=1; path=/; SameSite=Strict; max-age=${60 * 60 * 24 * 7}`;
   },
   clear: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
     delete api.defaults.headers.common.Authorization;
+
+    document.cookie = `thrive:session=; path=/; max-age=0`;
   },
 };
 
@@ -118,12 +120,14 @@ api.interceptors.response.use(
         token: refreshToken,
       });
 
-      const { accessToken, refreshToken: newRefresh } = data.data ?? data;
+      const { access_token: accessToken, refresh_token: newRefresh } =
+        data.data ?? data;
 
       tokenStorage.setTokens(accessToken, newRefresh);
       processQueue(null, accessToken);
 
       original.headers!.Authorization = `Bearer ${accessToken}`;
+
       return api(original);
     } catch (refreshError) {
       processQueue(refreshError, null);

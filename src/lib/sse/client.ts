@@ -28,7 +28,9 @@ class SSEClient {
     const token = tokenStorage.getAccess();
     if (!token) return;
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/events?token=${token}`;
+    const base = process.env.NEXT_PUBLIC_API_URL;
+
+    const url = `${base}/events?token=${encodeURIComponent(token)}&t=${Date.now()}`;
 
     this.es = new EventSource(url, { withCredentials: false });
 
@@ -54,6 +56,8 @@ class SSEClient {
           `[SSE] Reconnecting in ${delay}ms (attempt ${this.attempt})`,
         );
         setTimeout(() => this.connect(), delay);
+      } else {
+        console.warn("[SSE] Max reconnect attempts reached");
       }
     };
 

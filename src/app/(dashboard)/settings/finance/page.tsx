@@ -15,7 +15,7 @@ import {
 } from "@/features/settings/components/settingsSection";
 import { Loader2 } from "lucide-react";
 
-const CURRENCIES = ["KES", "USD", "EUR", "GBP", "UGX", "TZS"];
+const CURRENCIES = ["KES", "USD"];
 
 export default function FinancePage() {
   const { data, isLoading } = useClinicSettings();
