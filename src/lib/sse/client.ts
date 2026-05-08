@@ -28,7 +28,7 @@ class SSEClient {
     const token = tokenStorage.getAccess();
     if (!token) return;
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/events?token=${token}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/events?token=${token}`;
 
     this.es = new EventSource(url, { withCredentials: false });
 

@@ -110,7 +110,7 @@ function FinancialSection({
 
   const downloadPdf = (type: "invoice" | "quote", id: string) => {
     window.open(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/${type}/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/pdf/${type}/${id}`,
       "_blank",
     );
   };

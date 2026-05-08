@@ -162,15 +162,15 @@ const financialApi = {
 
   // ── PDF ───────────────────────────────────────────────────────────────────
   downloadInvoicePdf: (id: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/invoice/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/invoice/${id}`,
   downloadQuotePdf: (id: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/quote/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/quote/${id}`,
   downloadReceiptPdf: (paymentId: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/receipt/${paymentId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/receipt/${paymentId}`,
   downloadStatementPdf: (clientId: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/statement/${clientId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/statement/${clientId}`,
   downloadCreditNotePdf: (id: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pdf/credit-note/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/credit-note/${id}`,
 };
 
 export default financialApi;
