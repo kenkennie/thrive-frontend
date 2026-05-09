@@ -16,7 +16,13 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ApiError {
-  message: string;
+  success: false;
   statusCode: number;
-  errors?: Record<string, string[]>;
+  message: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
+  timestamp?: string;
+  path?: string;
 }

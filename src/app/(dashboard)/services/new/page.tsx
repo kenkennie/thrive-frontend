@@ -10,7 +10,7 @@ export default function NewServicePage() {
   const create = useCreateService();
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="w-full mx-auto space-y-5">
       <button
         onClick={() => router.back()}
         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
