@@ -75,14 +75,14 @@ export function ClientForm({ client, onSubmit, isLoading, onCancel }: Props) {
     queryKey: ["settings", "genders"],
     queryFn: () =>
       api
-        .get("/settings/genders")
+        .get("/settings/lookups/genders")
         .then((r) => (r.data as any).data as { id: string; label: string }[]),
   });
   const { data: skinTypes } = useQuery({
     queryKey: ["settings", "skinTypes"],
     queryFn: () =>
       api
-        .get("/settings/skin-types")
+        .get("/settings/lookups/skin-types")
         .then((r) => (r.data as any).data as { id: string; label: string }[]),
   });
 

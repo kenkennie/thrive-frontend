@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useClientsList } from "@/features/clients/hooks/Useclients";
-import { useCreateClient } from "@/features/clients/hooks/Useclients";
+import {
+  useClientsList,
+  useCreateClient,
+} from "@/features/clients/hooks/useClients";
 import type { Client } from "@/lib/api/clients";
 import { ClientForm } from "@/features/clients/components/ClientForm";
 import { getInitials, formatDate, cn } from "@/lib/utils";

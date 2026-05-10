@@ -94,9 +94,12 @@ export function useUpdateClient(id: string) {
 export function useRecordPhotoConsent(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (given: boolean) => clientsApi.recordPhotoConsent(id, given),
-    onSuccess: (_, given) => {
-      toast.success(given ? "Photo consent recorded" : "Photo consent revoked");
+    mutationFn: (granted: boolean) =>
+      clientsApi.recordPhotoConsent(id, granted),
+    onSuccess: (_, granted) => {
+      toast.success(
+        granted ? "Photo consent recorded" : "Photo consent revoked",
+      );
       qc.invalidateQueries({ queryKey: CLIENT_KEYS.detail(id) });
     },
     onError: (err: any) =>

@@ -95,20 +95,21 @@ const settingsApi = {
     api.patch(`/settings/exchange-rates/${id}`, { rate }),
 
   // Lookups
-  getGenders: () => api.get("/settings/genders"),
-  getSkinTypes: () => api.get("/settings/skin-types"),
-  getAppointmentStatuses: () => api.get("/settings/appointment-statuses"),
-  getBookingSources: () => api.get("/settings/booking-sources"),
-  getServiceTypes: () => api.get("/settings/service-types"),
+  getGenders: () => api.get("/settings/lookups/genders"),
+  getSkinTypes: () => api.get("/settings/lookups/skin-types"),
+  getAppointmentStatuses: () =>
+    api.get("/settings/lookups/appointment-statuses"),
+  getBookingSources: () => api.get("/settings/lookups/booking-sources"),
+  getServiceTypes: () => api.get("/settings/lookups/service-types"),
 
   createLookup: (
     type: string,
     dto: { name: string; label: string; color?: string },
-  ) => api.post(`/settings/${type}`, dto),
+  ) => api.post(`/settings/lookups/${type}`, dto),
   updateLookup: (type: string, id: string, dto: Partial<LookupItem>) =>
-    api.patch(`/settings/${type}/${id}`, dto),
+    api.patch(`/settings/lookups/${type}/${id}`, dto),
   deleteLookup: (type: string, id: string) =>
-    api.delete(`/settings/${type}/${id}`),
+    api.delete(`/settings/lookups/${type}/${id}`),
 };
 
 export default settingsApi;
