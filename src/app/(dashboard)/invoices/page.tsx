@@ -6,11 +6,20 @@ import { useInvoiceList } from "@/features/financial/hooks/useFinancial";
 import { InvoiceStatusBadge } from "@/features/financial/components/StatusBadge";
 import { Pagination } from "@/components/ui/Pagination";
 import { formatCurrency, formatDate, cn } from "@/lib/utils";
-import { Search, X, FileText, ChevronRight } from "lucide-react";
+import {
+  Search,
+  X,
+  FileText,
+  ChevronRight,
+  Plus,
+  TrendingUp,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 
 const LIMIT = 20;
 
-const STATUS_OPTIONS = [
+const STATUS_TABS = [
   { value: "", label: "All" },
   { value: "DRAFT", label: "Draft" },
   { value: "ISSUED", label: "Issued" },
@@ -32,11 +41,41 @@ export default function InvoicesPage() {
     page,
     limit: LIMIT,
   });
+
   const invoices = data?.data ?? [];
   const meta = data?.meta;
 
+  // Quick stats from list
+  const paid = invoices.filter((i: any) => i.status === "PAID").length;
+  const overdue = invoices.filter((i: any) => i.status === "OVERDUE").length;
+  const pending = invoices.filter((i: any) =>
+    ["ISSUED", "PARTIALLY_PAID"].includes(i.status),
+  ).length;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Invoices</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {meta?.total ?? invoices.length} total · {paid} paid
+            {overdue > 0 && ` · ${overdue} overdue`}
+          </p>
+        </div>
+        <button
+          onClick={() => router.push("/invoices/new")}
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium shadow-sm transition-all hover:shadow-md"
+          style={{
+            backgroundColor: "var(--brand-gold)",
+            color: "var(--brand-navy)",
+          }}
+        >
+          <Plus className="w-4 h-4" />
+          New Invoice
+        </button>
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative">
@@ -47,8 +86,8 @@ export default function InvoicesPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="Search invoice or client…"
-            className="h-9 pl-8 pr-3 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 w-56"
+            placeholder="Invoice number or client name…"
+            className="h-9 pl-8 pr-3 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 w-60"
           />
           {search && (
             <button
@@ -56,15 +95,16 @@ export default function InvoicesPage() {
                 setSearch("");
                 setPage(1);
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        <div className="flex items-center bg-muted rounded-lg p-1">
-          {STATUS_OPTIONS.map(({ value, label }) => (
+        {/* Status tabs */}
+        <div className="flex items-center bg-muted rounded-xl p-1 gap-0.5">
+          {STATUS_TABS.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => {
@@ -72,7 +112,7 @@ export default function InvoicesPage() {
                 setPage(1);
               }}
               className={cn(
-                "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
                 status === value
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground",
@@ -82,10 +122,6 @@ export default function InvoicesPage() {
             </button>
           ))}
         </div>
-
-        <span className="text-xs text-muted-foreground">
-          {meta?.total ?? invoices.length} invoices
-        </span>
       </div>
 
       {/* List */}
@@ -97,57 +133,117 @@ export default function InvoicesPage() {
                 key={i}
                 className="flex items-center gap-4 p-4 animate-pulse"
               >
-                <div className="w-8 h-8 rounded-lg bg-muted shrink-0" />
+                <div className="w-9 h-9 rounded-xl bg-muted shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 bg-muted rounded" />
-                  <div className="h-3 w-28 bg-muted/60 rounded" />
+                  <div className="h-4 w-44 bg-muted rounded" />
+                  <div className="h-3 w-32 bg-muted/60 rounded" />
                 </div>
                 <div className="w-20 h-6 bg-muted rounded-full" />
-                <div className="w-16 h-4 bg-muted rounded" />
+                <div className="w-20 h-5 bg-muted rounded" />
               </div>
             ))}
           </div>
         ) : invoices.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 gap-2">
-            <FileText className="w-10 h-10 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">No invoices found</p>
+          <div className="flex flex-col items-center justify-center h-48 gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
+              <FileText className="w-7 h-7 text-muted-foreground/40" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-foreground">
+                No invoices found
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {search || status
+                  ? "Try adjusting your filters"
+                  : "Create your first invoice to get started"}
+              </p>
+            </div>
+            {!search && !status && (
+              <button
+                onClick={() => router.push("/invoices/new")}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors hover:opacity-80"
+                style={{ color: "var(--brand-gold)" }}
+              >
+                <Plus className="w-3.5 h-3.5" /> Create invoice
+              </button>
+            )}
           </div>
         ) : (
-          <div className="divide-y divide-border">
-            {invoices.map((inv: any) => (
-              <button
-                key={inv.id}
-                onClick={() => router.push(`/invoices/${inv.id}`)}
-                className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-muted/20 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground font-mono">
-                      {inv.invoiceNumber}
-                    </span>
+          <>
+            {/* Table header */}
+            <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2.5 bg-muted/30 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="col-span-4">Invoice / Client</span>
+              <span className="col-span-2">Date</span>
+              <span className="col-span-2">Status</span>
+              <span className="col-span-2 text-right">Amount</span>
+              <span className="col-span-2 text-right">Due</span>
+            </div>
+
+            <div className="divide-y divide-border">
+              {invoices.map((inv: any) => (
+                <button
+                  key={inv.id}
+                  onClick={() => router.push(`/invoices/${inv.id}`)}
+                  className="w-full grid grid-cols-12 gap-3 items-center px-4 py-3.5 text-left hover:bg-muted/20 transition-colors group"
+                >
+                  {/* Invoice + client */}
+                  <div className="col-span-12 sm:col-span-4 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground font-mono truncate">
+                        {inv.invoiceNumber}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {inv.client?.fullName}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Date */}
+                  <div className="hidden sm:block col-span-2">
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(inv.createdAt)}
+                    </p>
+                    {inv.dueDate && (
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(inv.dueDate)} due
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div className="hidden sm:flex col-span-2 items-center">
                     <InvoiceStatusBadge status={inv.status} />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {inv.client?.fullName} · {formatDate(inv.createdAt)}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-foreground">
-                    {formatCurrency(inv.totalAmount, inv.currency)}
-                  </p>
-                  {inv.amountDue > 0 && inv.status !== "DRAFT" && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400">
-                      {formatCurrency(inv.amountDue, inv.currency)} due
+
+                  {/* Amount */}
+                  <div className="hidden sm:block col-span-2 text-right">
+                    <p className="text-sm font-semibold text-foreground">
+                      {formatCurrency(inv.totalAmount, inv.currency)}
                     </p>
-                  )}
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-              </button>
-            ))}
-          </div>
+                  </div>
+
+                  {/* Due / paid */}
+                  <div className="hidden sm:flex col-span-2 items-center justify-end gap-2">
+                    {inv.amountDue > 0 &&
+                    inv.status !== "DRAFT" &&
+                    inv.status !== "VOID" ? (
+                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                        {formatCurrency(inv.amountDue, inv.currency)} due
+                      </span>
+                    ) : inv.status === "PAID" ? (
+                      <span className="text-xs text-green-600 dark:text-green-400">
+                        Paid
+                      </span>
+                    ) : null}
+                    <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

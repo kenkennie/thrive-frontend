@@ -212,7 +212,7 @@ export function StatusActions({ appointment, onDone, compact }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => {
-                cancel.mutate({ id: appointment.id, reason: cancelReason });
+                cancel.mutate(appointment.id, cancelReason);
                 setShowCancel(false);
                 onDone?.();
               }}

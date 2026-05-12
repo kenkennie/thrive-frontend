@@ -323,7 +323,9 @@ export function AppointmentForm({
 
   return (
     <form
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={form.handleSubmit((data) => {
+        onSubmit(data);
+      })}
       className="space-y-5"
     >
       {/* Client */}

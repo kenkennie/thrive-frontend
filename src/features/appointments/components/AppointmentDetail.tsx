@@ -1,22 +1,23 @@
+// src/features/appointments/components/AppointmentDetail.tsx
 "use client";
 
 import { formatDate, formatTime, formatCurrency, cn } from "@/lib/utils";
 import { StatusBadge } from "./StatusBadge";
+import { StatusActions } from "./StatusActions";
 import type { Appointment } from "@/lib/api/appointments";
 import {
   User,
   Phone,
   Mail,
   Clock,
-  Calendar,
   Stethoscope,
   FileText,
   CreditCard,
   ExternalLink,
   ChevronRight,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { StatusActions } from "./Statusactions";
 
 interface Props {
   appointment: Appointment;
@@ -31,42 +32,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4">
         {title}
       </h3>
       <div className="px-4">{children}</div>
-    </div>
-  );
-}
-
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-  href,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string | React.ReactNode;
-  href?: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 py-2">
-      <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        {href ? (
-          <a
-            href={href}
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            {value}
-          </a>
-        ) : (
-          <p className="text-sm font-medium text-foreground">{value}</p>
-        )}
-      </div>
     </div>
   );
 }
@@ -83,11 +53,25 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
     invoice,
     internalNotes,
     clientNotes,
-    source,
-    treatmentPlan,
   } = appointment;
 
-  const totalAmount = appointmentServices.reduce((s, a) => s + a.totalPrice, 0);
+  const source = (appointment as any).source;
+  const treatmentPlan = (appointment as any).treatmentPlan;
+
+  // Amount breakdown from service definitions
+  const subtotal = appointmentServices.reduce(
+    (s, a) => s + (a.totalPrice ?? 0),
+    0,
+  );
+
+  // Consultation fee (STANDALONE only)
+  const consultationFee = appointmentServices.reduce((s, a) => {
+    const fee = (a.service as any)?.consultationFee ?? 0;
+    const model = (a.service as any)?.consultationFeeModel;
+    return model === "STANDALONE" ? s + fee : s;
+  }, 0);
+
+  const estimatedTotal = subtotal + consultationFee;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -105,8 +89,7 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
           </div>
           <StatusBadge status={status} />
         </div>
-
-        {/* Status actions */}
+        {/* Action buttons */}
         <StatusActions
           appointment={appointment}
           onDone={onClose}
@@ -148,36 +131,37 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
           </Link>
           {client.email && (
-            <InfoRow
-              icon={Mail}
-              label="Email"
-              value={client.email}
+            <a
               href={`mailto:${client.email}`}
-            />
+              className="flex items-center gap-2 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Mail className="w-3.5 h-3.5" /> {client.email}
+            </a>
           )}
-          <InfoRow
-            icon={Phone}
-            label="Phone"
-            value={client.phoneNumber}
+          <a
             href={`tel:${client.phoneNumber}`}
-          />
+            className="flex items-center gap-2 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Phone className="w-3.5 h-3.5" /> {client.phoneNumber}
+          </a>
           {client.noShowCount > 0 && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-              ⚠ {client.noShowCount} lifetime no-show
+            <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+              <AlertCircle className="w-3.5 h-3.5" />
+              {client.noShowCount} lifetime no-show
               {client.noShowCount > 1 ? "s" : ""}
             </p>
           )}
         </Section>
 
-        {/* Services */}
-        <Section title="Services">
-          <div className="space-y-2">
+        {/* Services + Amount breakdown */}
+        <Section title="Services & Amount">
+          <div className="space-y-1.5 pt-1">
             {appointmentServices.map((as, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between py-1.5"
+                className="flex items-start justify-between gap-2"
               >
-                <div className="min-w-0">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">
                     {as.service.name}
                     {as.variant && (
@@ -187,51 +171,75 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
                       </span>
                     )}
                   </p>
-                  {as.durationMin && (
-                    <p className="text-xs text-muted-foreground">
-                      {as.durationMin} min
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {as.durationMin && (
+                      <span className="text-xs text-muted-foreground">
+                        {as.durationMin} min
+                      </span>
+                    )}
+                    {as.quantity > 1 && (
+                      <span className="text-xs text-muted-foreground">
+                        ×{as.quantity}
+                      </span>
+                    )}
+                    {!(as.service as any)?.isTaxExempt && (
+                      <span className="text-xs text-blue-500">VAT</span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-foreground shrink-0 ml-3">
-                  {formatCurrency(as.totalPrice)}
+                <span className="text-sm font-medium text-foreground shrink-0">
+                  {formatCurrency(as.totalPrice ?? 0)}
                 </span>
               </div>
             ))}
-            {appointmentServices.length > 1 && (
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className="text-sm font-semibold">Total</span>
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--brand-gold)" }}
-                >
-                  {formatCurrency(totalAmount)}
+
+            {consultationFee > 0 && (
+              <div className="flex items-center justify-between py-1">
+                <span className="text-sm text-muted-foreground">
+                  Consultation fee
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {formatCurrency(consultationFee)}
                 </span>
               </div>
             )}
+
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="text-sm font-bold text-foreground">
+                Est. total
+              </span>
+              <span
+                className="text-sm font-bold"
+                style={{ color: "var(--brand-gold)" }}
+              >
+                {formatCurrency(estimatedTotal)}
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              VAT and final adjustments applied at invoice stage.
+            </p>
           </div>
         </Section>
 
         {/* Doctor */}
-        <Section title="Assigned Doctor">
-          <InfoRow
-            icon={Stethoscope}
-            label="Doctor"
-            value={doctor.fullName}
-          />
+        <Section title="Doctor">
+          <div className="flex items-center gap-2 py-2">
+            <Stethoscope className="w-4 h-4 text-muted-foreground shrink-0" />
+            <p className="text-sm font-medium text-foreground">
+              {doctor.fullName}
+            </p>
+          </div>
           {source && (
-            <InfoRow
-              icon={ExternalLink}
-              label="Booking source"
-              value={source.label}
-            />
+            <p className="text-xs text-muted-foreground pb-2">
+              via {source.label}
+            </p>
           )}
           {treatmentPlan && (
             <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground">
                     Treatment Plan
                   </p>
                   <p className="text-sm font-medium text-foreground">
@@ -292,30 +300,20 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
         {(clientNotes || internalNotes) && (
           <Section title="Notes">
             {clientNotes && (
-              <div className="mb-3">
-                <p className="text-xs text-muted-foreground mb-1">
-                  Client note
-                </p>
-                <p className="text-sm text-foreground bg-muted/50 rounded-lg p-2.5">
-                  {clientNotes}
-                </p>
-              </div>
+              <p className="text-sm text-foreground bg-muted/50 rounded-lg p-2.5 mb-2">
+                {clientNotes}
+              </p>
             )}
             {internalNotes && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">
-                  Internal note
-                </p>
-                <p className="text-sm text-foreground bg-amber-50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-lg p-2.5">
-                  {internalNotes}
-                </p>
-              </div>
+              <p className="text-sm text-foreground bg-amber-50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-lg p-2.5">
+                {internalNotes}
+              </p>
             )}
           </Section>
         )}
       </div>
 
-      {/* Footer link */}
+      {/* Footer */}
       <div className="shrink-0 px-4 py-3 border-t border-border">
         <Link
           href={`/appointments/${appointment.id}`}

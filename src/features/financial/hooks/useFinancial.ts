@@ -1,3 +1,4 @@
+// src/features/financial/hooks/useFinancial.ts
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,7 +12,6 @@ export const FIN_KEYS = {
   quotes: (q: any) => ["quotes", q] as const,
   quote: (id: string) => ["quotes", id] as const,
   payments: (q: any) => ["payments", q] as const,
-  payment: (id: string) => ["payments", id] as const,
   creditNotes: (q: any) => ["credit-notes", q] as const,
 };
 
@@ -35,6 +35,31 @@ export function useInvoice(id: string) {
     queryFn: () => financialApi.getInvoice(id),
     enabled: !!id,
     select: (res) => extractItem<any>(res),
+  });
+}
+
+export function useCreateInvoice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: financialApi.createInvoice,
+    onSuccess: () => {
+      toast.success("Invoice created");
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to create invoice"),
+  });
+}
+
+export function useUpdateInvoice(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: any) => financialApi.updateInvoice(id, dto),
+    onSuccess: () => {
+      toast.success("Invoice updated");
+      qc.invalidateQueries({ queryKey: FIN_KEYS.invoice(id) });
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to update invoice"),
   });
 }
 
@@ -158,7 +183,7 @@ export function useSendQuote() {
   return useMutation({
     mutationFn: (id: string) => financialApi.sendQuote(id),
     onSuccess: (_, id) => {
-      toast.success("Quote sent to client");
+      toast.success("Quote sent");
       qc.invalidateQueries({ queryKey: FIN_KEYS.quote(id) });
       qc.invalidateQueries({ queryKey: ["quotes"] });
     },
@@ -205,8 +230,6 @@ export function useConvertQuote() {
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-// ── Credit / Debit Notes ─────────────────────────────────────────────────────
 
 export function useCreateCreditNote() {
   const qc = useQueryClient();

@@ -23,8 +23,6 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 const todayStr = () => new Date().toISOString().split("T")[0];
 const addDays = (d: string, n: number) => {
   const dt = new Date(d);
@@ -45,7 +43,7 @@ const fmtLabel = (date: string) => {
   });
 };
 
-type ViewMode = "list" | "schedule" | "month";
+type ViewMode = "month" | "list" | "schedule";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -60,20 +58,17 @@ const STATUS_OPTIONS = [
 
 const LIMIT = 15;
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function AppointmentsPage() {
   const router = useRouter();
   const canCreate = usePermission("appointments:create");
 
-  const [view, setView] = useState<ViewMode>("list");
+  // Default to month view
+  const [view, setView] = useState<ViewMode>("month");
   const [date, setDate] = useState(todayStr());
   const [search, setSearch] = useState("");
   const [statusName, setStatusName] = useState("");
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-
-  // For month view — query whole month
   const [monthYear, setMonthYear] = useState(() => {
     const d = new Date();
     return { year: d.getFullYear(), month: d.getMonth() };
@@ -81,7 +76,6 @@ export default function AppointmentsPage() {
 
   const resetPage = () => setPage(1);
 
-  // List / schedule query — by date
   const listQuery = useAppointmentsList(
     view === "month"
       ? {
@@ -102,14 +96,12 @@ export default function AppointmentsPage() {
 
   const appointments: Appointment[] = extractArray(listQuery.data);
   const meta = extractMeta(listQuery.data);
-
   const activeFilterCount = [search, statusName].filter(Boolean).length;
 
   return (
     <div className="flex flex-col gap-4 h-[calc(100vh-9rem)]">
-      {/* ── Toolbar ── */}
+      {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap shrink-0">
-        {/* Date nav — hidden in month view */}
         {view !== "month" && (
           <>
             <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
@@ -153,7 +145,6 @@ export default function AppointmentsPage() {
           </>
         )}
 
-        {/* Filter toggle — list only */}
         {view === "list" && (
           <button
             onClick={() => setShowFilters((v) => !v)}
@@ -181,13 +172,13 @@ export default function AppointmentsPage() {
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          {/* View tabs */}
+          {/* Order: Month, List, Schedule */}
           <div className="flex items-center bg-muted rounded-lg p-1">
             {(
               [
+                { id: "month", icon: Calendar },
                 { id: "list", icon: List },
                 { id: "schedule", icon: CalendarDays },
-                { id: "month", icon: Calendar },
               ] as { id: ViewMode; icon: any }[]
             ).map(({ id, icon: Icon }) => (
               <button
@@ -222,7 +213,7 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      {/* ── Filter bar ── */}
+      {/* Filter bar */}
       {showFilters && view === "list" && (
         <div className="flex items-center gap-2 flex-wrap shrink-0 p-3 bg-muted/30 rounded-xl border border-border">
           <div className="relative">
@@ -248,7 +239,6 @@ export default function AppointmentsPage() {
               </button>
             )}
           </div>
-
           <select
             value={statusName}
             onChange={(e) => {
@@ -266,7 +256,6 @@ export default function AppointmentsPage() {
               </option>
             ))}
           </select>
-
           {activeFilterCount > 0 && (
             <button
               onClick={() => {
@@ -282,7 +271,7 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {/* ── Stats bar ── */}
+      {/* Stats bar — list and schedule only */}
       {view !== "month" && (
         <div className="flex items-center gap-3 text-xs text-muted-foreground shrink-0">
           <span>{meta?.total ?? appointments.length} appointments</span>
@@ -319,7 +308,7 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {/* ── Views ── */}
+      {/* Views — Month first, List second, Schedule third */}
       <div className="flex-1 overflow-hidden min-h-0">
         {view === "month" && (
           <div className="h-full overflow-y-auto">
@@ -334,8 +323,6 @@ export default function AppointmentsPage() {
             />
           </div>
         )}
-
-        {view === "schedule" && <DailySchedule date={date} />}
 
         {view === "list" && (
           <div className="flex flex-col gap-3 h-full">
@@ -376,7 +363,6 @@ export default function AppointmentsPage() {
                 ))
               )}
             </div>
-
             {meta && meta.totalPages > 1 && (
               <div className="shrink-0 pt-2 border-t border-border">
                 <Pagination
@@ -390,6 +376,8 @@ export default function AppointmentsPage() {
             )}
           </div>
         )}
+
+        {view === "schedule" && <DailySchedule date={date} />}
       </div>
     </div>
   );

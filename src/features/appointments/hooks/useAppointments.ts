@@ -43,7 +43,7 @@ export function useDailySchedule(date: string, doctorId?: string) {
 // ── Status transition mutations ───────────────────────────────────────────────
 
 function useStatusMutation(
-  action: (id: string, ...args: any[]) => Promise<any>,
+  action: (...args: any[]) => Promise<any>,
   successMsg: string,
 ) {
   const qc = useQueryClient();
