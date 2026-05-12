@@ -48,6 +48,16 @@ export interface Service {
   contraindications?: Contraindication[];
   doctors?: ServiceDoctor[];
   createdAt: string;
+  requiresConsultation: boolean;
+  consultationFee?: number;
+  consultationFeeModel?: string;
+  depositRequired: boolean;
+  depositAmount?: number;
+  isTaxExempt: boolean;
+  minNoticeHours?: number;
+  maxAdvanceDays?: number;
+  minAge?: number;
+  imageUrl?: string;
 }
 
 export interface CreateServiceDto {
@@ -63,6 +73,17 @@ export interface CreateServiceDto {
   isActive?: boolean;
   requiresConsent?: boolean;
   maxCapacity?: number;
+  requiresConsultation?: boolean;
+  consultationFee?: number;
+  consultationFeeModel?: string;
+  depositRequired?: boolean;
+  depositAmount?: number;
+  isTaxExempt?: boolean;
+  minNoticeHours?: number;
+  maxAdvanceDays?: number;
+  minAge?: number;
+  imageUrl?: string;
+  cleanupTimeMin?: number;
 }
 
 export interface CreateCategoryDto {
