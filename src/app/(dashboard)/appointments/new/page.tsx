@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AppointmentForm } from "@/features/appointments/components/Appointmentform";
+import { AppointmentForm } from "@/features/appointments/components/AppointmentForm";
 import { useCreateAppointment } from "@/features/appointments/hooks/useAppointments";
 import { ArrowLeft } from "lucide-react";
 

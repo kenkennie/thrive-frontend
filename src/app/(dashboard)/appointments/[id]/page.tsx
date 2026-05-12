@@ -8,8 +8,7 @@ import {
   useCancelAppointment,
   useUpdateAppointment,
 } from "@/features/appointments/hooks/useAppointments";
-import { AppointmentForm } from "@/features/appointments/components/Appointmentform";
-import { StatusActions } from "@/features/appointments/components/StatusActions";
+
 import { StatusBadge } from "@/features/appointments/components/StatusBadge";
 import { usePermission } from "@/hooks/usePermission";
 import { extractArray, extractItem } from "@/lib/api/response";
@@ -32,6 +31,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
+import { AppointmentForm } from "@/features/appointments/components/AppointmentForm";
+import { StatusActions } from "@/features/appointments/components/Statusactions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -268,7 +269,7 @@ export default function AppointmentDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-full mx-auto space-y-4">
       {/* Back */}
       <button
         onClick={() => router.back()}

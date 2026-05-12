@@ -95,8 +95,11 @@ const appointmentsApi = {
   getById: (id: string) =>
     api.get<ApiResponse<Appointment>>(`/appointments/${id}`),
 
-  create: (dto: CreateAppointmentDto) =>
-    api.post<ApiResponse<Appointment>>("/appointments", dto),
+  create: (dto: CreateAppointmentDto) => {
+    console.log("Appointment DTO:", dto);
+
+    return api.post<ApiResponse<Appointment>>("/appointments", dto);
+  },
 
   update: (id: string, dto: Partial<CreateAppointmentDto>) =>
     api.patch<ApiResponse<Appointment>>(`/appointments/${id}`, dto),
@@ -112,7 +115,7 @@ const appointmentsApi = {
     doctorId?: string;
     date: string;
   }) =>
-    api.get<ApiResponse<{ slots: string[] }>>("/appointments/availability", {
+    api.get<ApiResponse<{ slots: string[] }>>("/services/availability", {
       params,
     }),
 

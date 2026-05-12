@@ -129,7 +129,7 @@ const financialApi = {
   getInvoice: (id: string) => api.get(`/invoices/${id}`),
   createInvoice: (dto: any) => api.post("/invoices", dto),
   updateInvoice: (id: string, dto: any) => api.patch(`/invoices/${id}`, dto),
-  issueInvoice: (id: string) => api.patch(`/invoices/${id}/issue`),
+  issueInvoice: (id: string) => api.post(`/invoices/${id}/issue`),
   voidInvoice: (id: string, reason?: string) =>
     api.patch(`/invoices/${id}/void`, { reason }),
   applyDiscount: (
@@ -168,7 +168,7 @@ const financialApi = {
   downloadReceiptPdf: (paymentId: string) =>
     `${process.env.NEXT_PUBLIC_API_URL}/pdf/receipt/${paymentId}`,
   downloadStatementPdf: (clientId: string) =>
-    `${process.env.NEXT_PUBLIC_API_URL}/pdf/statement/${clientId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/pdf/client-statement/${clientId}`,
   downloadCreditNotePdf: (id: string) =>
     `${process.env.NEXT_PUBLIC_API_URL}/pdf/credit-note/${id}`,
 };

@@ -148,4 +148,6 @@ const clientsApi = {
     api.get(`/invoices`, { params: { clientId: id, ...params } }),
 };
 
+export const listClients = clientsApi.list;
+
 export default clientsApi;

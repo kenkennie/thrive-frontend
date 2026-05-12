@@ -25,7 +25,7 @@ const servicesApi = {
   getById: (id: string) => api.get(`/services/${id}`),
   getDoctors: (serviceId: string) => api.get(`/services/${serviceId}/doctors`),
   getAvailability: (params: any) =>
-    api.get("/appointments/availability", { params }),
+    api.get("/services/availability", { params }),
 };
 
 export default servicesApi;

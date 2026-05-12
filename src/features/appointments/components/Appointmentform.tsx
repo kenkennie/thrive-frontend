@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -279,6 +279,7 @@ export function AppointmentForm({
 
   // Doctors — from first selected service, fallback to all staff doctors
   const firstServiceId = watchedServices[0]?.serviceId;
+
   const { data: serviceDoctors } = useQuery({
     queryKey: ["service-doctors", firstServiceId],
     queryFn: () => servicesApi.getDoctors(firstServiceId),
@@ -309,9 +310,16 @@ export function AppointmentForm({
   // Booking sources
   const { data: sources } = useQuery({
     queryKey: ["booking-sources"],
-    queryFn: () => api.get("/settings/booking-sources"),
+    queryFn: () => api.get("/settings/lookups/booking-sources"),
     select: (res) => extractArray(res),
   });
+
+  // useEffect(() => {
+  //   console.log("====================================");
+  //   console.log(doctors[1]);
+  //   console.log("====================================");
+  //   console.log("doctors:");
+  // }, [doctors]);
 
   return (
     <form
@@ -374,12 +382,12 @@ export function AppointmentForm({
           className={cn(inputCls(errors.doctorId?.message), "cursor-pointer")}
         >
           <option value="">Select doctor…</option>
-          {(Array.isArray(doctors) ? doctors : []).map((d: any) => (
+          {doctors?.map((doctor: any) => (
             <option
-              key={d.id}
-              value={d.id}
+              key={doctor.id}
+              value={doctor.id}
             >
-              {d.fullName}
+              {doctor.fullName}
             </option>
           ))}
         </select>
