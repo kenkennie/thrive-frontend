@@ -243,12 +243,66 @@ export function useCreateCreditNote() {
   });
 }
 
+export function useApplyCreditNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, targetInvoiceId }: { id: string; targetInvoiceId: string }) =>
+      financialApi.applyCreditNote(id, targetInvoiceId),
+    onSuccess: () => {
+      toast.success("Credit note applied");
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+      qc.invalidateQueries({ queryKey: ["credit-notes"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+
+export function useVoidCreditNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      financialApi.voidCreditNote(id, reason),
+    onSuccess: () => {
+      toast.success("Credit note voided");
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+      qc.invalidateQueries({ queryKey: ["credit-notes"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+
 export function useCreateDebitNote() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: financialApi.createDebitNote,
     onSuccess: () => {
       toast.success("Debit note issued");
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+
+export function useMarkDebitNotePaid() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, paymentReference }: { id: string; paymentReference?: string }) =>
+      financialApi.markDebitNotePaid(id, paymentReference),
+    onSuccess: () => {
+      toast.success("Debit note marked as paid");
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+
+export function useVoidDebitNote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      financialApi.voidDebitNote(id, reason),
+    onSuccess: () => {
+      toast.success("Debit note voided");
       qc.invalidateQueries({ queryKey: ["invoices"] });
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),

@@ -12,6 +12,10 @@ import {
   useCreateCreditNote,
   useCreateDebitNote,
   useRefundPayment,
+  useApplyCreditNote,
+  useVoidCreditNote,
+  useMarkDebitNotePaid,
+  useVoidDebitNote,
 } from "@/features/financial/hooks/useFinancial";
 import { InvoiceForm } from "@/features/financial/components/InvoiceForm";
 import { RecordPaymentForm } from "@/features/financial/components/RecordPaymentForm";
@@ -41,6 +45,7 @@ import {
   ExternalLink,
   ChevronRight,
   BadgeMinus,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -222,6 +227,10 @@ export default function InvoiceDetailPage({ params }: Props) {
   const voidInv = useVoidInvoice();
   const updateInv = useUpdateInvoice(id);
   const refundPay = useRefundPayment();
+  const applyCredit = useApplyCreditNote();
+  const voidCredit = useVoidCreditNote();
+  const markDebit = useMarkDebitNotePaid();
+  const voidDebit = useVoidDebitNote();
 
   const canRecord = usePermission("payments:record");
   const canIssue = usePermission("invoices:generate");
@@ -258,7 +267,7 @@ export default function InvoiceDetailPage({ params }: Props) {
   const canEditNow = isDraft && canEdit;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="max-full mx-auto space-y-5">
       {/* Back */}
       <button
         onClick={() => router.back()}
@@ -732,38 +741,69 @@ export default function InvoiceDetailPage({ params }: Props) {
             </p>
           </div>
           <div className="divide-y divide-border/60">
-            {inv.creditNotes.map((cn: any) => (
+            {inv.creditNotes.map((credit_note: any) => (
               <div
-                key={cn.id}
+                key={credit_note.id}
                 className="flex items-center justify-between px-5 py-3"
               >
                 <div>
                   <p className="text-sm font-medium text-foreground font-mono">
-                    {cn.creditNoteNumber}
+                    {credit_note.creditNoteNumber}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {formatDate(cn.issuedAt)}
+                    {formatDate(credit_note.issuedAt)}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <span
                     className={cn(
                       "text-xs px-2 py-0.5 rounded-full",
-                      cn.status === "APPLIED"
+                      credit_note.status === "APPLIED"
                         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         : "bg-muted text-muted-foreground",
                     )}
                   >
-                    {cn.status}
+                    {credit_note.status}
                   </span>
                   <span className="text-sm font-semibold text-foreground">
-                    {formatCurrency(cn.amount, inv.currency)}
+                    {formatCurrency(credit_note.amount, inv.currency)}
                   </span>
                   <PdfButton
-                    url={financialApi.downloadCreditNotePdf(cn.id)}
+                    url={financialApi.downloadCreditNotePdf(credit_note.id)}
                     label="PDF"
                     variant="ghost"
                   />
+                  {credit_note.status === "ISSUED" && (
+                    <>
+                      <button
+                        onClick={() =>
+                          applyCredit.mutate({
+                            id: credit_note.id,
+                            targetInvoiceId: id,
+                          })
+                        }
+                        disabled={applyCredit.isPending}
+                        className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/20 text-muted-foreground hover:text-green-600 transition-colors"
+                        title="Apply to this invoice"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const reason = prompt(
+                            "Reason for voiding this credit note:",
+                          );
+                          if (reason)
+                            voidCredit.mutate({ id: credit_note.id, reason });
+                        }}
+                        disabled={voidCredit.isPending}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Void credit note"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -791,13 +831,45 @@ export default function InvoiceDetailPage({ params }: Props) {
                     {formatDate(dn.issuedAt)}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "text-xs px-2 py-0.5 rounded-full",
+                      dn.status === "PAID"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
                     {dn.status}
                   </span>
                   <span className="text-sm font-semibold text-foreground">
                     {formatCurrency(dn.amount, inv.currency)}
                   </span>
+                  {dn.status === "ISSUED" && (
+                    <>
+                      <button
+                        onClick={() => markDebit.mutate({ id: dn.id })}
+                        disabled={markDebit.isPending}
+                        className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/20 text-muted-foreground hover:text-green-600 transition-colors"
+                        title="Mark as paid"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const reason = prompt(
+                            "Reason for voiding this debit note:",
+                          );
+                          if (reason) voidDebit.mutate({ id: dn.id, reason });
+                        }}
+                        disabled={voidDebit.isPending}
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Void debit note"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

@@ -51,6 +51,12 @@ if (typeof window !== "undefined") {
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // console.log(
+    //   "[API Request]",
+    //   config.method?.toUpperCase(),
+    //   config.url,
+    //   config.data ?? config.params ?? "",
+    // );
     // Always read fresh from localStorage (covers cases where setTokens was
     // called but the axios default header wasn't updated)
     const token = tokenStorage.getAccess();
@@ -79,8 +85,17 @@ function processQueue(error: unknown, token: string | null): void {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // console.log(
+    //   "[API Response]",
+    //   response.status,
+    //   response.config.url,
+    //   response.data,
+    // );
+    return response;
+  },
   async (error: AxiosError) => {
+    // console.error("[API Error]", error.response?.status, error.config?.url, error.response?.data);
     const original = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };

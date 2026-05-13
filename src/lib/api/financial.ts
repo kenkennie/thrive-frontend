@@ -158,7 +158,15 @@ const financialApi = {
   // ── Credit & Debit Notes ─────────────────────────────────────────────────
   listCreditNotes: (p?: any) => api.get("/credit-notes", { params: p }),
   createCreditNote: (dto: any) => api.post("/credit-notes", dto),
+  applyCreditNote: (id: string, targetInvoiceId: string) =>
+    api.post(`/credit-notes/${id}/apply`, { targetInvoiceId }),
+  voidCreditNote: (id: string, reason: string) =>
+    api.post(`/credit-notes/${id}/void`, { reason }),
   createDebitNote: (dto: any) => api.post("/debit-notes", dto),
+  markDebitNotePaid: (id: string, paymentReference?: string) =>
+    api.post(`/debit-notes/${id}/mark-paid`, { paymentReference }),
+  voidDebitNote: (id: string, reason: string) =>
+    api.post(`/debit-notes/${id}/void`, { reason }),
 
   // ── PDF ───────────────────────────────────────────────────────────────────
   downloadInvoicePdf: (id: string) =>
