@@ -33,14 +33,17 @@ export interface TrendData {
 }
 
 const reportsApi = {
-  getOverview: (params?: {
-    preset?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  }) => api.get<ApiResponse<OverviewSummary>>("/reports/overview", { params }),
-
-  getTrend: (params?: { preset?: string; groupBy?: string }) =>
-    api.get<ApiResponse<TrendData>>("/reports/trend", { params }),
+  getOverview: (params?: any) => api.get("/reports/overview", { params }),
+  getTrend: (params?: any) => api.get("/reports/trend", { params }),
+  getInvoices: (params?: any) => api.get("/reports/invoices", { params }),
+  getServices: (params?: any) => api.get("/reports/services", { params }),
+  getDoctors: (params?: any) => api.get("/reports/doctors", { params }),
+  getClients: (params?: any) => api.get("/reports/clients", { params }),
+  getNoShows: (params?: any) => api.get("/reports/no-shows", { params }),
+  getPeakHours: (params?: any) => api.get("/reports/peak-hours", { params }),
+  getTreatmentPlans: (params?: any) =>
+    api.get("/reports/treatment-plans", { params }),
+  getAging: (params?: any) => api.get("/reports/aging", { params }),
 };
 
 export default reportsApi;
