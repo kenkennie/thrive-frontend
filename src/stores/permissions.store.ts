@@ -16,14 +16,26 @@ export const usePermissionsStore = create<PermissionsState>()((set, get) => ({
   permissions: new Set(),
   isLoaded: false,
 
-  load: async () => {
-    try {
-      const { data } = await authApi.getPermissions();
-      set({ permissions: new Set(data.data), isLoaded: true });
-    } catch {
-      set({ permissions: new Set(), isLoaded: true });
-    }
-  },
+   load: async () => {
+     try {
+       const { data } = await authApi.getPermissions();
+       // Backend returns { success: true, data: { effectivePermissions: [{ permission: { name }, granted }, ...] } }
+       // We need a flat Set of permission names where granted === true.
+       let permNames: string[] = [];
+       if (Array.isArray(data.data)) {
+         // Legacy shape: array of permission name strings
+         permNames = data.data;
+       } else if (data.data?.effectivePermissions) {
+         permNames = data.data.effectivePermissions
+           .filter((p: any) => p.granted)
+           .map((p: any) => p.permission?.name)
+           .filter(Boolean);
+       }
+       set({ permissions: new Set(permNames), isLoaded: true });
+     } catch {
+       set({ permissions: new Set(), isLoaded: true });
+     }
+   },
 
   hasPermission: (permission) => {
     const { permissions } = get();

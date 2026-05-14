@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Appointment } from "@/lib/api/appointments";
+import { useMonthAppointments } from "@/features/appointments/hooks/useAppointments";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -37,6 +38,19 @@ export function MonthlyCalendar({
   });
 
   const { year, month } = cur;
+
+  const [calYear, setCalYear] = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth());
+
+  // ADD this query (replaces using `appointments` for the calendar):
+  const { data: monthAppointments = [], isLoading: loadingMonth } =
+    useMonthAppointments(calYear, calMonth);
+
+  // UPDATE onMonthChange handler passed to MonthlyCalendar:
+  const handleMonthChange = (year: number, month: number) => {
+    setCalYear(year);
+    setCalMonth(month);
+  };
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();

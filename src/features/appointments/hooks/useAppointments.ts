@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import appointmentsApi, {
   type ListAppointmentsQuery,
 } from "@/lib/api/appointments";
+import { extractArray } from "@/lib/api/response";
+import api from "@/lib/api/client";
 
 export const APPT_KEYS = {
   all: ["appointments"] as const,
@@ -114,3 +116,21 @@ export const useUpdateAppointment = (id: string) => {
       toast.error(err?.message ?? "Failed to update appointment"),
   });
 };
+
+export function useMonthAppointments(year: number, month: number) {
+  // First and last day of the given month
+  const dateFrom = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const dateTo = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+  return useQuery({
+    queryKey: ["appointments", "month", year, month],
+    queryFn: () =>
+      api.get("/appointments", {
+        params: { dateFrom, dateTo, limit: 200 }, // 200 is enough for a month
+      }),
+    select: (res) => extractArray(res),
+    placeholderData: (prev) => prev, // keeps previous month visible while loading
+    staleTime: 60_000, // 1 min — month data rarely changes mid-view
+  });
+}

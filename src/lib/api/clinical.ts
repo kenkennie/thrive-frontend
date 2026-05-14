@@ -104,12 +104,12 @@ const clinicalApi = {
 
   // ── Sessions ─────────────────────────────────────────────────────────────
   getSessionByAppointment: (appointmentId: string) =>
-    api.get(`/appointments/${appointmentId}/session`),
+    api.get(`/treatment-sessions/appointments/${appointmentId}/session`),
   getSession: (sessionId: string) => api.get(`/sessions/${sessionId}`),
   createSessionNote: (appointmentId: string, dto: any) =>
-    api.post(`/appointments/${appointmentId}/session`, dto),
+    api.post(`/treatment-sessions/appointments/${appointmentId}/session`, dto),
   updateSession: (sessionId: string, dto: any) =>
-    api.patch(`/sessions/${sessionId}`, dto),
+    api.patch(`/treatment-sessions/sessions/${sessionId}`, dto),
   completeSession: (planId: string, sessionId: string, dto: any) =>
     api.patch(`/treatment-plans/${planId}/sessions/${sessionId}/complete`, dto),
   markMissed: (planId: string, sessionId: string) =>

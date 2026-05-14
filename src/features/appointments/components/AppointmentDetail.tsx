@@ -1,4 +1,3 @@
-// src/features/appointments/components/AppointmentDetail.tsx
 "use client";
 
 import { formatDate, formatTime, formatCurrency, cn } from "@/lib/utils";
@@ -71,7 +70,7 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
     return model === "STANDALONE" ? s + fee : s;
   }, 0);
 
-  const estimatedTotal = subtotal + consultationFee;
+  const estimatedTotal = subtotal;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">

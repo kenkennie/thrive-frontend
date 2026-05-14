@@ -1,4 +1,3 @@
-// src/app/(dashboard)/appointments/[id]/session/page.tsx
 "use client";
 
 import { use } from "react";

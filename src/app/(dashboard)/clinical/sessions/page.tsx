@@ -44,7 +44,7 @@ export default function SessionsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["sessions", "list", status, search],
     queryFn: () =>
-      api.get("/sessions", {
+      api.get("/treatment-sessions", {
         params: {
           status: status || undefined,
           search: search || undefined,
