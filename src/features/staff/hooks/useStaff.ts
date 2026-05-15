@@ -5,209 +5,236 @@ import { toast } from "sonner";
 import staffApi from "@/lib/api/staff";
 import { extractArray, extractItem } from "@/lib/api/response";
 
-export const STAFF_KEYS = {
-  all: ["staff"] as const,
-  list: (q: any) => ["staff", "list", q] as const,
-  detail: (id: string) => ["staff", "detail", id] as const,
-  roles: ["roles"] as const,
-  role: (id: string) => ["roles", id] as const,
-  permissions: ["permissions"] as const,
-  overrides: (userId: string) => ["staff", "overrides", userId] as const,
-};
+const inv = (qc: any, keys: string[][]) =>
+  keys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
 
-export function useStaffList(query?: any) {
-  return useQuery({
-    queryKey: STAFF_KEYS.list(query),
-    queryFn: () => staffApi.list(query),
-    select: (res) => ({
-      data: extractArray(res),
-      meta: (res as any)?.data?.meta ?? null,
-    }),
+export const useStaffList = (p?: any) =>
+  useQuery({
+    queryKey: ["staff", "list", p],
+    queryFn: () => staffApi.list(p),
+    select: (r) => ({ data: extractArray(r), meta: (r as any)?.data?.meta }),
   });
-}
-
-export function useStaffMember(id: string) {
-  return useQuery({
-    queryKey: STAFF_KEYS.detail(id),
+export const useStaffMember = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id],
     queryFn: () => staffApi.getById(id),
     enabled: !!id,
-    select: (res) => extractItem<any>(res),
+    select: (r) => extractItem<any>(r),
   });
-}
-
-export function useRoles() {
-  return useQuery({
-    queryKey: STAFF_KEYS.roles,
-    queryFn: () => staffApi.listRoles(),
-    select: (res) => extractArray(res),
+export const useInviteList = (p?: any) =>
+  useQuery({
+    queryKey: ["staff", "invites", p],
+    queryFn: () => staffApi.listInvites(p),
+    select: (r) => extractArray(r),
   });
-}
-
-export function useRole(id: string) {
-  return useQuery({
-    queryKey: STAFF_KEYS.role(id),
-    queryFn: () => staffApi.getRole(id),
+export const useAllRoles = () =>
+  useQuery({
+    queryKey: ["roles"],
+    queryFn: () => staffApi.getAllRoles(),
+    select: (r) => extractArray(r),
+  });
+export const useAllPermissions = () =>
+  useQuery({
+    queryKey: ["permissions", "grouped"],
+    queryFn: () => staffApi.getAllPermissions(),
+    select: (r) => (r as any)?.data?.data ?? {},
+  });
+export const useUserRoles = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id, "roles"],
+    queryFn: () => staffApi.getUserRoles(id),
     enabled: !!id,
-    select: (res) => extractItem<any>(res),
+    select: (r) => extractArray(r),
+  });
+export const useEffectivePermissions = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id, "permissions"],
+    queryFn: () => staffApi.getEffective(id),
+    enabled: !!id,
+    select: (r) => extractItem<any>(r),
+  });
+export const useSchedule = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id, "schedule"],
+    queryFn: () => staffApi.getSchedule(id),
+    enabled: !!id,
+    select: (r) => extractArray(r),
+  });
+export const useBlockedSlots = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id, "blocked"],
+    queryFn: () => staffApi.listBlocked(id),
+    enabled: !!id,
+    select: (r) => extractArray(r),
+  });
+
+export function useCreateStaff() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: staffApi.create,
+    onSuccess: () => {
+      toast.success("Staff member created");
+      inv(qc, [["staff", "list"]]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useAllPermissions() {
-  return useQuery({
-    queryKey: STAFF_KEYS.permissions,
-    queryFn: () => staffApi.listPermissions(),
-    select: (res) => extractArray(res),
-  });
-}
-
-export function useUserOverrides(userId: string) {
-  return useQuery({
-    queryKey: STAFF_KEYS.overrides(userId),
-    queryFn: () => staffApi.getUserOverrides(userId),
-    enabled: !!userId,
-    select: (res) => extractArray(res),
-  });
-}
-
 export function useInviteStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: staffApi.invite,
     onSuccess: () => {
-      toast.success("Invite sent");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.all });
+      toast.success("Invitation sent");
+      inv(qc, [["staff", "invites"]]);
     },
-    onError: (e: any) => toast.error(e?.message ?? "Failed to send invite"),
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
+export function useCancelInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => staffApi.cancelInvite(id),
+    onSuccess: () => {
+      toast.success("Invitation cancelled");
+      inv(qc, [["staff", "invites"]]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+export function useResendInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => staffApi.resendInvite(id),
+    onSuccess: () => {
+      toast.success("Invitation resent");
+      inv(qc, [["staff", "invites"]]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+export function useUpdateStaff(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: any) => staffApi.update(id, dto),
+    onSuccess: () => {
+      toast.success("Updated");
+      inv(qc, [
+        ["staff", id],
+        ["staff", "list"],
+      ]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
 export function useDeactivateStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => staffApi.deactivate(id),
     onSuccess: () => {
-      toast.success("Staff member deactivated");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.all });
+      toast.success("Account deactivated");
+      qc.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useReactivateStaff() {
+export function useActivateStaff() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => staffApi.reactivate(id),
+    mutationFn: (id: string) => staffApi.activate(id),
     onSuccess: () => {
-      toast.success("Staff member reactivated");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.all });
+      toast.success("Account activated");
+      qc.invalidateQueries({ queryKey: ["staff"] });
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
 export function useResetPassword() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => staffApi.resetPassword(id),
     onSuccess: () => toast.success("Password reset email sent"),
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useAssignRole() {
+export function useAssignRole(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, roleId }: { userId: string; roleId: string }) =>
-      staffApi.assignRole(userId, roleId),
-    onSuccess: (_, { userId }) => {
+    mutationFn: (roleId: string) => staffApi.assignRole(userId, roleId),
+    onSuccess: () => {
       toast.success("Role assigned");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.detail(userId) });
+      inv(qc, [
+        ["staff", userId, "roles"],
+        ["staff", userId, "permissions"],
+      ]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useRevokeRole() {
+export function useRemoveRole(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, roleId }: { userId: string; roleId: string }) =>
-      staffApi.revokeRole(userId, roleId),
-    onSuccess: (_, { userId }) => {
+    mutationFn: (roleId: string) => staffApi.removeRole(userId, roleId),
+    onSuccess: () => {
       toast.success("Role removed");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.detail(userId) });
+      inv(qc, [
+        ["staff", userId, "roles"],
+        ["staff", userId, "permissions"],
+      ]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useSetPermissionOverride() {
+export function useBulkOverride(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      userId,
-      permissionId,
-      granted,
-    }: {
-      userId: string;
-      permissionId: string;
-      granted: boolean;
-    }) => staffApi.setOverride(userId, { permissionId, granted }),
-    onSuccess: (_, { userId }) => {
-      toast.success("Permission override saved");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.overrides(userId) });
+    mutationFn: (overrides: any[]) => staffApi.bulkOverride(userId, overrides),
+    onSuccess: () => {
+      toast.success("Permissions saved");
+      inv(qc, [["staff", userId, "permissions"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useDeletePermissionOverride() {
+export function useRemoveOverride(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      userId,
-      permissionId,
-    }: {
-      userId: string;
-      permissionId: string;
-    }) => staffApi.deleteOverride(userId, permissionId),
-    onSuccess: (_, { userId }) => {
+    mutationFn: (permId: string) => staffApi.removeOverride(userId, permId),
+    onSuccess: () => {
       toast.success("Override removed");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.overrides(userId) });
+      inv(qc, [["staff", userId, "permissions"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useCreateRole() {
+export function useSaveSchedule(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: staffApi.createRole,
+    mutationFn: (days: any[]) => staffApi.updateSchedule(userId, days),
     onSuccess: () => {
-      toast.success("Role created");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.roles });
+      toast.success("Schedule saved");
+      inv(qc, [["staff", userId, "schedule"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useUpdateRole() {
+export function useAddBlocked(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...dto }: any) => staffApi.updateRole(id, dto),
+    mutationFn: (dto: any) => staffApi.addBlocked(userId, dto),
     onSuccess: () => {
-      toast.success("Role updated");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.roles });
+      toast.success("Slot blocked");
+      inv(qc, [["staff", userId, "blocked"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 }
-
-export function useDeleteRole() {
+export function useRemoveBlocked(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => staffApi.deleteRole(id),
+    mutationFn: (id: string) => staffApi.removeBlocked(userId, id),
     onSuccess: () => {
-      toast.success("Role deleted");
-      qc.invalidateQueries({ queryKey: STAFF_KEYS.roles });
+      toast.success("Slot removed");
+      inv(qc, [["staff", userId, "blocked"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });

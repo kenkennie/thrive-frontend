@@ -59,44 +59,52 @@ export interface CreateRoleDto {
 }
 
 const staffApi = {
-  // Staff
-  list: (params?: {
-    search?: string;
-    isActive?: boolean;
-    page?: number;
-    limit?: number;
-  }) => api.get("/users", { params }),
+  // Users
+  list: (params?: any) => api.get("/users", { params }),
   getById: (id: string) => api.get(`/users/${id}`),
-  invite: (dto: InviteStaffDto) => api.post("/users/invite", dto),
+  create: (dto: any) => api.post("/users", dto),
   update: (id: string, dto: any) => api.patch(`/users/${id}`, dto),
-  deactivate: (id: string) => api.delete(`/users/${id}`),
-  reactivate: (id: string) => api.patch(`/users/${id}/reactivate`),
+  deactivate: (id: string) => api.patch(`/users/${id}/deactivate`),
+  activate: (id: string) => api.patch(`/users/${id}/activate`),
   resetPassword: (id: string) => api.post(`/users/${id}/reset-password`),
 
-  // Roles
-  listRoles: () => api.get("/permissions/roles"),
-  getRole: (id: string) => api.get(`/permissions/roles/${id}`),
-  createRole: (dto: CreateRoleDto) => api.post("/permissions/roles", dto),
-  updateRole: (id: string, dto: Partial<CreateRoleDto>) =>
-    api.patch(`/permissions/roles/${id}`, dto),
-  deleteRole: (id: string) => api.delete(`/permissions/roles/${id}`),
+  // Invitations
+  invite: (dto: any) => api.post("/users/invite", dto),
+  cancelInvite: (id: string) => api.delete(`/users/invitations/${id}`),
+  resendInvite: (id: string) => api.post(`/users/invitations/${id}/resend`),
+  listInvites: (params?: any) => api.get("/users/invitations", { params }),
 
-  // Role assignments
+  // Roles
+  getAllRoles: () => api.get("/permissions/roles"),
+  getUserRoles: (userId: string) =>
+    api.get(`/permissions/users/${userId}/roles`),
   assignRole: (userId: string, roleId: string) =>
-    api.post(`/users/${userId}/roles`, { roleId }),
-  revokeRole: (userId: string, roleId: string) =>
-    api.delete(`/users/${userId}/roles/${roleId}`),
+    api.post(`/permissions/users/${userId}/roles`, { roleId }),
+  removeRole: (userId: string, roleId: string) =>
+    api.delete(`/permissions/users/${userId}/roles/${roleId}`),
 
   // Permissions
-  listPermissions: () => api.get("/permissions"),
-  getUserOverrides: (userId: string) =>
-    api.get(`/users/${userId}/permission-overrides`),
-  setOverride: (
-    userId: string,
-    dto: { permissionId: string; granted: boolean },
-  ) => api.post(`/users/${userId}/permission-overrides`, dto),
-  deleteOverride: (userId: string, permissionId: string) =>
-    api.delete(`/users/${userId}/permission-overrides/${permissionId}`),
+  getAllPermissions: () => api.get("/permissions?grouped=true"),
+  getEffective: (userId: string) =>
+    api.get(`/permissions/users/${userId}/permissions`),
+  setOverride: (userId: string, dto: any) =>
+    api.post(`/permissions/users/${userId}/permissions/override`, dto),
+  bulkOverride: (userId: string, overrides: any[]) =>
+    api.post(`/permissions/users/${userId}/permissions/override/bulk`, {
+      overrides,
+    }),
+  removeOverride: (userId: string, permId: string) =>
+    api.delete(`/permissions/users/${userId}/permissions/${permId}/override`),
+
+  // Schedule
+  getSchedule: (userId: string) => api.get(`/staff/${userId}/schedule`),
+  updateSchedule: (userId: string, days: any[]) =>
+    api.put(`/staff/${userId}/schedule`, { days }),
+  listBlocked: (userId: string) => api.get(`/staff/${userId}/blocked-slots`),
+  addBlocked: (userId: string, dto: any) =>
+    api.post(`/staff/${userId}/blocked-slots`, dto),
+  removeBlocked: (userId: string, id: string) =>
+    api.delete(`/staff/${userId}/blocked-slots/${id}`),
 };
 
 export default staffApi;

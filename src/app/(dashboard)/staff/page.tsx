@@ -1,338 +1,469 @@
+// src/app/(dashboard)/staff/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import {
   useStaffList,
-  useDeactivateStaff,
-  useReactivateStaff,
-  useResetPassword,
+  useInviteList,
+  useCreateStaff,
+  useInviteStaff,
+  useCancelInvite,
+  useResendInvite,
+  useAllRoles,
 } from "@/features/staff/hooks/useStaff";
-import { InviteForm } from "@/features/staff/components/inviteForm";
-import { usePermission } from "@/hooks/usePermission";
-import { Pagination } from "@/components/ui/Pagination";
-import { getInitials, formatDate, cn } from "@/lib/utils";
+import { extractArray } from "@/lib/api/response";
+import { formatDate, cn } from "@/lib/utils";
 import {
   Plus,
-  Search,
-  X,
-  UserCheck,
-  UserX,
-  KeyRound,
-  ChevronRight,
-  Shield,
-  MoreVertical,
   Mail,
+  RefreshCw,
+  X,
+  ChevronRight,
+  UserPlus,
+  Loader2,
+  Send,
+  UserCheck,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
 
-const LIMIT = 20;
+const inp = cn(
+  "w-full h-10 px-3 rounded-lg border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30",
+);
+
+const INVITE_STATUS: Record<string, string> = {
+  PENDING:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  ACCEPTED:
+    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  EXPIRED: "bg-muted text-muted-foreground",
+  CANCELLED: "bg-muted text-muted-foreground",
+};
+
+type Mode = "none" | "invite" | "create";
 
 export default function StaffPage() {
   const router = useRouter();
-  const canInvite = usePermission("staff:invite");
-  const canDeactivate = usePermission("staff:deactivate");
-  const canReset = usePermission("staff:reset_password");
+  const [mode, setMode] = useState<Mode>("none");
+  const [tab, setTab] = useState<"staff" | "invites">("staff");
 
-  const [search, setSearch] = useState("");
-  const [active, setActive] = useState<boolean | undefined>(undefined);
-  const [page, setPage] = useState(1);
-  const [showInvite, setShowInvite] = useState(false);
-  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const { data: staffData, isLoading } = useStaffList();
+  const { data: invites = [] } = useInviteList();
+  const { data: roles = [] } = useAllRoles();
 
-  const { data, isLoading } = useStaffList({
-    search: search || undefined,
-    isActive: active,
-    page,
-    limit: LIMIT,
+  const staff = staffData?.data ?? [];
+  const create = useCreateStaff();
+  const invite = useInviteStaff();
+  const cancel = useCancelInvite();
+  const resend = useResendInvite();
+
+  const inviteForm = useForm({
+    defaultValues: { email: "", fullName: "", roleId: "" },
+  });
+  const createForm = useForm({
+    defaultValues: {
+      email: "",
+      fullName: "",
+      phoneNumber: "",
+      password: "",
+      roleId: "",
+    },
   });
 
-  const staffList = data?.data ?? [];
-  const meta = data?.meta;
-
-  const deactivate = useDeactivateStaff();
-  const reactivate = useReactivateStaff();
-  const resetPw = useResetPassword();
-
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search staff…"
-            className="h-9 pl-8 pr-3 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 w-52"
-          />
-          {search && (
-            <button
-              onClick={() => {
-                setSearch("");
-                setPage(1);
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Staff</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {staff.length} members
+          </p>
         </div>
-
-        {/* Status filter */}
-        <div className="flex items-center bg-muted rounded-lg p-1">
-          {[
-            { label: "All", value: undefined },
-            { label: "Active", value: true },
-            { label: "Inactive", value: false },
-          ].map(({ label, value }) => (
-            <button
-              key={label}
-              onClick={() => {
-                setActive(value);
-                setPage(1);
-              }}
-              className={cn(
-                "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                active === value
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <span className="text-xs text-muted-foreground">
-          {meta?.total ?? staffList.length} members
-        </span>
-
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => router.push("/staff/roles")}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border border-border hover:bg-muted transition-colors"
+            onClick={() => setMode(mode === "invite" ? "none" : "invite")}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border border-border hover:bg-muted transition-colors"
           >
-            <Shield className="w-4 h-4" />
-            Roles
+            <Mail className="w-4 h-4" /> Invite
           </button>
-          {canInvite && (
-            <button
-              onClick={() => setShowInvite(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium"
-              style={{
-                backgroundColor: "var(--brand-gold)",
-                color: "var(--brand-navy)",
-              }}
-            >
-              <Plus className="w-4 h-4" />
-              Invite Staff
-            </button>
-          )}
+          <button
+            onClick={() => setMode(mode === "create" ? "none" : "create")}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium shadow-sm"
+            style={{
+              backgroundColor: "var(--brand-gold)",
+              color: "var(--brand-navy)",
+            }}
+          >
+            <Plus className="w-4 h-4" /> Add staff
+          </button>
         </div>
       </div>
 
       {/* Invite form */}
-      {showInvite && (
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-foreground">
-              Invite Staff Member
+      {mode === "invite" && (
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-muted/20">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Send className="w-4 h-4" /> Invite by email
             </h2>
             <button
-              onClick={() => setShowInvite(false)}
+              onClick={() => setMode("none")}
               className="p-1 rounded-md hover:bg-muted text-muted-foreground"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
-          <InviteForm onDone={() => setShowInvite(false)} />
+          <form
+            onSubmit={inviteForm.handleSubmit(async (d) => {
+              await invite.mutateAsync(d as any);
+              setMode("none");
+              inviteForm.reset();
+            })}
+            className="p-5 space-y-4"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Full name
+                </label>
+                <input
+                  {...inviteForm.register("fullName")}
+                  placeholder="Jane Kamau"
+                  className={inp}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  {...inviteForm.register("email")}
+                  placeholder="jane@thrive.co.ke"
+                  className={inp}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Role
+              </label>
+              <select
+                {...inviteForm.register("roleId")}
+                className={cn(inp, "cursor-pointer")}
+              >
+                <option value="">Select role…</option>
+                {(roles as any[]).map((r) => (
+                  <option
+                    key={r.id}
+                    value={r.id}
+                  >
+                    {r.displayName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={invite.isPending}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={{
+                  backgroundColor: "var(--brand-gold)",
+                  color: "var(--brand-navy)",
+                }}
+              >
+                {invite.isPending && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                )}
+                Send invitation
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("none")}
+                className="px-5 py-2 rounded-lg text-sm border border-border hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
-      {/* Staff list */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        {isLoading ? (
-          <div className="divide-y divide-border">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 p-4 animate-pulse"
-              >
-                <div className="w-10 h-10 rounded-full bg-muted shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 bg-muted rounded" />
-                  <div className="h-3 w-28 bg-muted/60 rounded" />
-                </div>
+      {/* Create form */}
+      {mode === "create" && (
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-muted/20">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <UserPlus className="w-4 h-4" /> Add staff directly
+            </h2>
+            <button
+              onClick={() => setMode("none")}
+              className="p-1 rounded-md hover:bg-muted text-muted-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <form
+            onSubmit={createForm.handleSubmit(async (d) => {
+              await create.mutateAsync(d as any);
+              setMode("none");
+              createForm.reset();
+            })}
+            className="p-5 space-y-4"
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Full name *
+                </label>
+                <input
+                  {...createForm.register("fullName")}
+                  placeholder="Dr. Jane Kamau"
+                  className={inp}
+                />
               </div>
-            ))}
-          </div>
-        ) : staffList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 gap-2">
-            <p className="text-sm text-muted-foreground">
-              No staff members found
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {staffList.map((member: any) => (
-              <div
-                key={member.id}
-                className="flex items-center gap-4 px-4 py-3.5 hover:bg-muted/20 transition-colors group relative"
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  {...createForm.register("email")}
+                  placeholder="jane@thrive.co.ke"
+                  className={inp}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Phone
+                </label>
+                <input
+                  {...createForm.register("phoneNumber")}
+                  placeholder="+254 7XX XXX XXX"
+                  className={inp}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Temporary password *
+                </label>
+                <input
+                  type="password"
+                  {...createForm.register("password")}
+                  placeholder="Min 8 characters"
+                  className={inp}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Role
+              </label>
+              <select
+                {...createForm.register("roleId")}
+                className={cn(inp, "cursor-pointer")}
               >
-                {/* Avatar */}
+                <option value="">Select role…</option>
+                {(roles as any[]).map((r) => (
+                  <option
+                    key={r.id}
+                    value={r.id}
+                  >
+                    {r.displayName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={create.isPending}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={{
+                  backgroundColor: "var(--brand-gold)",
+                  color: "var(--brand-navy)",
+                }}
+              >
+                {create.isPending && (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                )}
+                Create account
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("none")}
+                className="px-5 py-2 rounded-lg text-sm border border-border hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex items-center bg-muted rounded-xl p-1 gap-0.5 w-fit">
+        {(
+          [
+            { id: "staff", label: "Staff members" },
+            {
+              id: "invites",
+              label: `Invitations (${(invites as any[]).length})`,
+            },
+          ] as const
+        ).map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={cn(
+              "px-3.5 py-2 rounded-lg text-xs font-medium transition-all",
+              tab === id
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Staff list */}
+      {tab === "staff" && (
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : staff.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-2">
+              <UserCheck className="w-10 h-10 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">
+                No staff members yet
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {staff.map((m: any) => (
                 <button
-                  onClick={() => router.push(`/staff/${member.id}`)}
-                  className="flex items-center gap-4 flex-1 min-w-0 text-left"
+                  key={m.id}
+                  onClick={() => router.push(`/staff/${m.id}`)}
+                  className="w-full flex items-center gap-4 px-4 py-3.5 text-left hover:bg-muted/20 transition-colors group"
                 >
                   <div
-                    className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
-                      !member.isActive && "opacity-50",
-                    )}
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                     style={{
                       backgroundColor: "var(--brand-gold)",
                       color: "var(--brand-navy)",
                     }}
                   >
-                    {getInitials(member.fullName)}
+                    {m.fullName
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .slice(0, 2)
+                      .join("")}
                   </div>
-
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-foreground">
-                        {member.fullName}
-                      </span>
-                      {member.isSuperAdmin && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium">
-                          Super Admin
-                        </span>
-                      )}
-                      {!member.isActive && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                      <p className="text-sm font-medium text-foreground">
+                        {m.fullName}
+                      </p>
+                      {!m.isActive && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                           Inactive
                         </span>
                       )}
-                      {!member.emailVerifiedAt && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                          Pending invite
-                        </span>
-                      )}
                     </div>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Mail className="w-3 h-3" />
-                        {member.email}
-                      </span>
-                      {member.userRoles?.length > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          {member.userRoles
-                            .map((ur: any) => ur.role.displayName)
-                            .join(", ")}
+                    <p className="text-xs text-muted-foreground">{m.email}</p>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {m.userRoles?.map((ur: any) => (
+                        <span
+                          key={ur.role.id}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+                        >
+                          {ur.role.displayName}
                         </span>
-                      )}
+                      ))}
                     </div>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                 </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-                {/* Last active */}
-                <div className="hidden sm:block text-right shrink-0">
-                  {member.lastLoginAt ? (
-                    <>
-                      <p className="text-xs text-muted-foreground">
-                        Last login
-                      </p>
-                      <p className="text-xs font-medium text-foreground">
-                        {formatDate(member.lastLoginAt)}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      Never logged in
+      {/* Invites list */}
+      {tab === "invites" && (
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          {(invites as any[]).length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-2">
+              <Mail className="w-10 h-10 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">
+                No pending invitations
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {(invites as any[]).map((inv: any) => (
+                <div
+                  key={inv.id}
+                  className="flex items-center gap-4 px-4 py-3.5"
+                >
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">
+                      {inv.email}
                     </p>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="relative">
-                  <button
-                    onClick={() =>
-                      setMenuOpen(menuOpen === member.id ? null : member.id)
-                    }
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground opacity-0 group-hover:opacity-100"
+                    <p className="text-xs text-muted-foreground">
+                      Sent {formatDate(inv.createdAt)}
+                      {inv.expiresAt &&
+                        ` · Expires ${formatDate(inv.expiresAt)}`}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "text-[10px] px-2 py-0.5 rounded-full font-medium",
+                      INVITE_STATUS[inv.status] ??
+                        "bg-muted text-muted-foreground",
+                    )}
                   >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-
-                  {menuOpen === member.id && (
-                    <div className="absolute right-0 top-8 w-44 bg-card border border-border rounded-xl shadow-xl z-30 overflow-hidden py-1">
+                    {inv.status}
+                  </span>
+                  {inv.status === "PENDING" && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => resend.mutate(inv.id)}
+                        disabled={resend.isPending}
+                        title="Resend"
+                        className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
                       <button
                         onClick={() => {
-                          router.push(`/staff/${member.id}`);
-                          setMenuOpen(null);
+                          if (confirm("Cancel this invitation?"))
+                            cancel.mutate(inv.id);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                        title="Cancel"
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                       >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                        View profile
+                        <X className="w-3.5 h-3.5" />
                       </button>
-                      {canReset && (
-                        <button
-                          onClick={() => {
-                            resetPw.mutate(member.id);
-                            setMenuOpen(null);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                        >
-                          <KeyRound className="w-3.5 h-3.5" />
-                          Reset password
-                        </button>
-                      )}
-                      {canDeactivate &&
-                        !member.isSuperAdmin &&
-                        (member.isActive ? (
-                          <button
-                            onClick={() => {
-                              if (confirm(`Deactivate ${member.fullName}?`))
-                                deactivate.mutate(member.id);
-                              setMenuOpen(null);
-                            }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
-                          >
-                            <UserX className="w-3.5 h-3.5" />
-                            Deactivate
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              reactivate.mutate(member.id);
-                              setMenuOpen(null);
-                            }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                          >
-                            <UserCheck className="w-3.5 h-3.5" />
-                            Reactivate
-                          </button>
-                        ))}
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {meta && meta.totalPages > 1 && (
-        <Pagination
-          page={page}
-          totalPages={meta.totalPages}
-          total={meta.total}
-          limit={LIMIT}
-          onPageChange={setPage}
-        />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

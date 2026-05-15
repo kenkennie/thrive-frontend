@@ -14,6 +14,7 @@ import {
   ClipboardList,
   MessageSquare,
   type LucideIcon,
+  Shield,
 } from "lucide-react";
 
 export interface NavItem {
@@ -152,6 +153,12 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: UserCog,
         permissions: ["staff:view"],
         featureFlag: "enableStaff",
+      },
+      {
+        label: "Permissions",
+        href: "/permissions",
+        icon: Shield,
+        permissions: ["permissions:view"],
       },
       {
         label: "Notifications",

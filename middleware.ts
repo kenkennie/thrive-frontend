@@ -1,59 +1,53 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// src/middleware.ts
+// When a logged-in user lands on / (dashboard), check their permissions.
+// If they lack 'dashboard:view', redirect to the first page they CAN access.
 
-const publicRoutes = [
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/verify-email",
-  "/reset-password",
-  "/resend-verification",
-  "/verify-token",
-  "/2fa/generate",
-  "/2fa/enable",
-  "/2fa",
-  "/invite",
-  "/confirm-email-change",
+import { NextRequest, NextResponse } from "next/server";
+
+const ROUTE_PERMISSION_MAP = [
+  { path: "/appointments", permission: "appointments:view" },
+  { path: "/clients", permission: "clients:view" },
+  { path: "/invoices", permission: "invoices:view" },
+  { path: "/clinical/sessions", permission: "sessions:view" },
+  { path: "/reports", permission: "reports:view" },
+  { path: "/staff", permission: "staff:view" },
+  { path: "/settings", permission: "settings:view" },
 ];
-
-const authRoutes = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.delete("x-middleware-subrequest");
-  // Auth token stored in localStorage (client-side only) —
-  // we use a cookie set at login for SSR-side protection.
-  const token = request.cookies.get("thrive:session")?.value;
-  const isAuthenticated = !!token;
+  // Only intercept the dashboard root
+  if (pathname !== "/") return NextResponse.next();
 
-  // Check if current route is public
+  const token =
+    request.cookies.get("accessToken")?.value ??
+    request.headers.get("Authorization")?.replace("Bearer ", "");
 
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route),
-  );
+  if (!token) return NextResponse.redirect(new URL("/login", request.url));
 
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  // Read permissions from the JWT payload (no DB call in edge)
+  // The auth store saves a compact permissions array in the token claim
+  try {
+    const [, payload] = token.split(".");
+    const decoded = JSON.parse(atob(payload));
+    const perms: string[] = decoded.permissions ?? [];
 
-  // Redirect authenticated users away from auth pages
-  if (isAuthenticated && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const hasDashboard = perms.includes("dashboard:view");
+    if (hasDashboard) return NextResponse.next();
+
+    // Find first permitted route
+    const first = ROUTE_PERMISSION_MAP.find((r) =>
+      perms.includes(r.permission),
+    );
+    if (first) return NextResponse.redirect(new URL(first.path, request.url));
+
+    // No permissions at all — show a "no access" page
+    return NextResponse.redirect(new URL("/no-access", request.url));
+  } catch {
+    // Token unreadable — let the client-side auth handle it
+    return NextResponse.next();
   }
-
-  // Redirect unauthenticated users to login
-  if (!isAuthenticated && !isPublicRoute && pathname !== "/") {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Pass modified headers if needed
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
 }
 
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|logo.svg).*)"],
-};
+export const config = { matcher: ["/"] };
