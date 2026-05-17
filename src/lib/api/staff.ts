@@ -76,6 +76,11 @@ const staffApi = {
 
   // Roles
   getAllRoles: () => api.get("/permissions/roles"),
+  getRoleById: (id: string) => api.get(`/permissions/roles/${id}`),
+  createRole: (dto: any) => api.post("/permissions/roles", dto),
+  updateRole: (id: string, dto: any) =>
+    api.patch(`/permissions/roles/${id}`, dto),
+  deleteRole: (id: string) => api.delete(`/permissions/roles/${id}`),
   getUserRoles: (userId: string) =>
     api.get(`/permissions/users/${userId}/roles`),
   assignRole: (userId: string, roleId: string) =>
@@ -84,7 +89,8 @@ const staffApi = {
     api.delete(`/permissions/users/${userId}/roles/${roleId}`),
 
   // Permissions
-  getAllPermissions: () => api.get("/permissions?grouped=true"),
+  getAllPermissions: () => api.get("/permissions"), // flat array
+  getAllPermissionsGrouped: () => api.get("/permissions?grouped=true"), // grouped obj
   getEffective: (userId: string) =>
     api.get(`/permissions/users/${userId}/permissions`),
   setOverride: (userId: string, dto: any) =>

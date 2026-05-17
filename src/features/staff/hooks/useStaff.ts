@@ -1,3 +1,4 @@
+// src/features/staff/hooks/useStaff.ts
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import { extractArray, extractItem } from "@/lib/api/response";
 const inv = (qc: any, keys: string[][]) =>
   keys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
 
+// ── Staff ─────────────────────────────────────────────────────────────────────
 export const useStaffList = (p?: any) =>
   useQuery({
     queryKey: ["staff", "list", p],
@@ -27,17 +29,26 @@ export const useInviteList = (p?: any) =>
     queryFn: () => staffApi.listInvites(p),
     select: (r) => extractArray(r),
   });
+
+// ── Roles ─────────────────────────────────────────────────────────────────────
 export const useAllRoles = () =>
   useQuery({
     queryKey: ["roles"],
     queryFn: () => staffApi.getAllRoles(),
     select: (r) => extractArray(r),
   });
-export const useAllPermissions = () =>
+export const useRoles = () =>
   useQuery({
-    queryKey: ["permissions", "grouped"],
-    queryFn: () => staffApi.getAllPermissions(),
-    select: (r) => (r as any)?.data?.data ?? {},
+    queryKey: ["roles"],
+    queryFn: () => staffApi.getAllRoles(),
+    select: (r) => extractArray(r),
+  });
+export const useRole = (id: string) =>
+  useQuery({
+    queryKey: ["roles", id],
+    queryFn: () => staffApi.getRoleById(id),
+    enabled: !!id,
+    select: (r) => extractItem<any>(r),
   });
 export const useUserRoles = (id: string) =>
   useQuery({
@@ -46,6 +57,22 @@ export const useUserRoles = (id: string) =>
     enabled: !!id,
     select: (r) => extractArray(r),
   });
+
+// ── Permissions ───────────────────────────────────────────────────────────────
+// Flat array — used by role picker (PermissionPicker component)
+export const useAllPermissions = () =>
+  useQuery({
+    queryKey: ["permissions", "flat"],
+    queryFn: () => staffApi.getAllPermissions(),
+    select: (r) => extractArray(r),
+  });
+// Grouped object — used by permission overrides UI
+export const useAllPermissionsGrouped = () =>
+  useQuery({
+    queryKey: ["permissions", "grouped"],
+    queryFn: () => staffApi.getAllPermissionsGrouped(),
+    select: (r) => (r as any)?.data?.data ?? {},
+  });
 export const useEffectivePermissions = (id: string) =>
   useQuery({
     queryKey: ["staff", id, "permissions"],
@@ -53,6 +80,8 @@ export const useEffectivePermissions = (id: string) =>
     enabled: !!id,
     select: (r) => extractItem<any>(r),
   });
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
 export const useSchedule = (id: string) =>
   useQuery({
     queryKey: ["staff", id, "schedule"],
@@ -68,6 +97,7 @@ export const useBlockedSlots = (id: string) =>
     select: (r) => extractArray(r),
   });
 
+// ── Staff mutations ───────────────────────────────────────────────────────────
 export function useCreateStaff() {
   const qc = useQueryClient();
   return useMutation({
@@ -76,7 +106,8 @@ export function useCreateStaff() {
       toast.success("Staff member created");
       inv(qc, [["staff", "list"]]);
     },
-    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+    onError: (e: any) =>
+      toast.error(e?.response?.data?.message ?? e?.message ?? "Failed"),
   });
 }
 export function useInviteStaff() {
@@ -87,7 +118,8 @@ export function useInviteStaff() {
       toast.success("Invitation sent");
       inv(qc, [["staff", "invites"]]);
     },
-    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+    onError: (e: any) =>
+      toast.error(e?.response?.data?.message ?? e?.message ?? "Failed"),
   });
 }
 export function useCancelInvite() {
@@ -154,6 +186,52 @@ export function useResetPassword() {
     mutationFn: (id: string) => staffApi.resetPassword(id),
     onSuccess: () => toast.success("Password reset email sent"),
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+
+// ── Role mutations ────────────────────────────────────────────────────────────
+export function useCreateRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: any) => staffApi.createRole(dto),
+    onSuccess: () => {
+      toast.success("Role created");
+      qc.invalidateQueries({ queryKey: ["roles"] });
+    },
+    onError: (e: any) =>
+      toast.error(
+        e?.response?.data?.message ?? e?.message ?? "Failed to create role",
+      ),
+  });
+}
+export function useUpdateRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: any) => staffApi.updateRole(id, dto),
+    onSuccess: (_, { id }) => {
+      toast.success("Role updated");
+      inv(qc, [["roles"], ["roles", id]]);
+    },
+    onError: (e: any) =>
+      toast.error(
+        e?.response?.data?.message ?? e?.message ?? "Failed to update role",
+      ),
+  });
+}
+export function useDeleteRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => staffApi.deleteRole(id),
+    onSuccess: () => {
+      toast.success("Role deleted");
+      qc.invalidateQueries({ queryKey: ["roles"] });
+    },
+    onError: (e: any) =>
+      toast.error(
+        e?.response?.data?.message ??
+          e?.message ??
+          "Cannot delete — users may be assigned",
+      ),
   });
 }
 export function useAssignRole(userId: string) {
