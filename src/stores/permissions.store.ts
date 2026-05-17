@@ -1,6 +1,15 @@
 import { create } from "zustand";
 import authApi from "@/lib/api/auth";
 
+interface EffectivePermission {
+  permission: { name: string };
+  granted: boolean;
+}
+
+interface PermissionsData {
+  effectivePermissions: EffectivePermission[];
+}
+
 interface PermissionsState {
   permissions: Set<string>;
   isLoaded: boolean;
@@ -19,16 +28,14 @@ export const usePermissionsStore = create<PermissionsState>()((set, get) => ({
    load: async () => {
      try {
        const { data } = await authApi.getPermissions();
-       // Backend returns { success: true, data: { effectivePermissions: [{ permission: { name }, granted }, ...] } }
-       // We need a flat Set of permission names where granted === true.
+       const inner: PermissionsData | string[] = data.data;
        let permNames: string[] = [];
-       if (Array.isArray(data.data)) {
-         // Legacy shape: array of permission name strings
-         permNames = data.data;
-       } else if (data.data?.effectivePermissions) {
-         permNames = data.data.effectivePermissions
-           .filter((p: any) => p.granted)
-           .map((p: any) => p.permission?.name)
+       if (Array.isArray(inner)) {
+         permNames = inner;
+       } else {
+         permNames = inner.effectivePermissions
+           .filter((p) => p.granted)
+           .map((p) => p.permission.name)
            .filter(Boolean);
        }
        set({ permissions: new Set(permNames), isLoaded: true });

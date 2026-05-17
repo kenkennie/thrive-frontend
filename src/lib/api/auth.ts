@@ -116,9 +116,12 @@ const authApi = {
   me: () => api.post<{ success: boolean; data: AuthUser }>("/auth/me"),
 
   getPermissions: () =>
-    api.get<{ success: boolean; data: string[] }>(
-      "/permissions/me/permissions",
-    ),
+    api.get<{
+      success: boolean;
+      data: {
+        effectivePermissions: { permission: { name: string }; granted: boolean }[];
+      } | string[];
+    }>("/permissions/me/permissions"),
 };
 
 export default authApi;
