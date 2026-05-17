@@ -17,8 +17,8 @@ interface Props {
 export function PermissionOverrides({ userId }: Props) {
   const { data: allPerms } = useAllPermissions();
   const { data: overrides } = useUserOverrides(userId);
-  const setOverride = useSetPermissionOverride();
-  const deleteOverride = useDeletePermissionOverride();
+  const setOverride = useSetPermissionOverride(userId);
+  const deleteOverride = useDeletePermissionOverride(userId);
 
   const [search, setSearch] = useState("");
   const [showPanel, setShowPanel] = useState(false);
@@ -45,9 +45,9 @@ export function PermissionOverrides({ userId }: Props) {
   const handle = (permissionId: string, granted: boolean) => {
     const existing = overrideMap.get(permissionId);
     if (existing && existing.granted === granted) {
-      deleteOverride.mutate({ userId, permissionId });
+      deleteOverride.mutate(permissionId);
     } else {
-      setOverride.mutate({ userId, permissionId, granted });
+      setOverride.mutate({ permissionId, granted });
     }
   };
 
@@ -77,12 +77,9 @@ export function PermissionOverrides({ userId }: Props) {
                 )}
                 {o.permission.displayName}
                 <button
-                  onClick={() =>
-                    deleteOverride.mutate({
-                      userId,
-                      permissionId: o.permission.id,
-                    })
-                  }
+onClick={() =>
+                     deleteOverride.mutate(o.permission.id)
+                   }
                   className="ml-0.5 hover:opacity-70 transition-opacity"
                 >
                   <X className="w-3 h-3" />

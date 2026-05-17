@@ -80,6 +80,13 @@ export const useEffectivePermissions = (id: string) =>
     enabled: !!id,
     select: (r) => extractItem<any>(r),
   });
+export const useUserOverrides = (id: string) =>
+  useQuery({
+    queryKey: ["staff", id, "overrides"],
+    queryFn: () => staffApi.getEffective(id),
+    enabled: !!id,
+    select: (r) => extractArray(r),
+  });
 
 // ── Schedule ──────────────────────────────────────────────────────────────────
 export const useSchedule = (id: string) =>
@@ -279,7 +286,28 @@ export function useRemoveOverride(userId: string) {
     mutationFn: (permId: string) => staffApi.removeOverride(userId, permId),
     onSuccess: () => {
       toast.success("Override removed");
-      inv(qc, [["staff", userId, "permissions"]]);
+      inv(qc, [["staff", userId, "overrides"]]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+export function useSetPermissionOverride(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ permissionId, granted }: { permissionId: string; granted: boolean }) =>
+      staffApi.setOverride(userId, { permissionId, granted }),
+    onSuccess: () => {
+      inv(qc, [["staff", userId, "overrides"]]);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
+  });
+}
+export function useDeletePermissionOverride(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (permissionId: string) => staffApi.removeOverride(userId, permissionId),
+    onSuccess: () => {
+      inv(qc, [["staff", userId, "overrides"]]);
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
