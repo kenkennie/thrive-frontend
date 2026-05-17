@@ -135,8 +135,8 @@ const clientsApi = {
     },
   ) => api.post<ApiResponse<BeforeAfterPhoto>>(`/clients/${id}/photos`, dto),
 
-// Photo consent
-   recordPhotoConsent: (id: string, granted: boolean) =>
+  // Photo consent
+  recordPhotoConsent: (id: string, granted: boolean) =>
     api.post<ApiResponse<Client>>(`/clients/${id}/photo-consent`, { granted }),
 
   // Appointments

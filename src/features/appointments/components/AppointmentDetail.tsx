@@ -89,11 +89,7 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
           <StatusBadge status={status} />
         </div>
         {/* Action buttons */}
-        <StatusActions
-          appointment={appointment}
-          onDone={onClose}
-          compact
-        />
+        <StatusActions appointment={appointment} onDone={onClose} compact />
       </div>
 
       {/* Scrollable body */}
@@ -156,10 +152,7 @@ export function AppointmentDetail({ appointment, onClose }: Props) {
         <Section title="Services & Amount">
           <div className="space-y-1.5 pt-1">
             {appointmentServices.map((as, i) => (
-              <div
-                key={i}
-                className="flex items-start justify-between gap-2"
-              >
+              <div key={i} className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">
                     {as.service.name}

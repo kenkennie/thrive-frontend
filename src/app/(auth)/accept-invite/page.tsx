@@ -41,27 +41,27 @@ function AcceptInviteForm() {
     defaultValues: { fullName: "", password: "", confirmPassword: "" },
   });
 
-   const onSubmit = async (data: Schema) => {
-     if (!token) {
-       toast.error("Invalid invite link.");
-       return;
-     }
-     try {
-       const res = await authApi.acceptInvite({
-         token,
-         password: data.password,
-         fullName: data.fullName,
-       });
-       const { tokenStorage } = await import("@/lib/api/client");
-       tokenStorage.setTokens(res.accessToken, res.refreshToken);
-       document.cookie = `thrive:session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-       setUser(res.user);
-       toast.success("Welcome to Thrive Aesthetics!");
-       router.replace("/");
-     } catch (err) {
-       toast.error(parseApiError(err).message);
-     }
-   };
+  const onSubmit = async (data: Schema) => {
+    if (!token) {
+      toast.error("Invalid invite link.");
+      return;
+    }
+    try {
+      const res = await authApi.acceptInvite({
+        token,
+        password: data.password,
+        fullName: data.fullName,
+      });
+      const { tokenStorage } = await import("@/lib/api/client");
+      tokenStorage.setTokens(res.accessToken, res.refreshToken);
+      document.cookie = `thrive:session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      setUser(res.user);
+      toast.success("Welcome to Thrive Aesthetics!");
+      router.replace("/");
+    } catch (err) {
+      toast.error(parseApiError(err).message);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
@@ -94,10 +94,7 @@ function AcceptInviteForm() {
           )}
         </div>
 
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-5"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {/* Full name */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">
@@ -222,11 +219,13 @@ function AcceptInviteForm() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
       <AcceptInviteForm />
     </Suspense>
   );

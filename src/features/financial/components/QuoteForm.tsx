@@ -223,10 +223,7 @@ export function QuoteForm({ quote, onSubmit, isLoading, onCancel }: Props) {
   const fmtC = (n: number) => formatCurrency(n, currency);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Client + Currency */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="sm:col-span-3 space-y-1.5">
@@ -251,10 +248,7 @@ export function QuoteForm({ quote, onSubmit, isLoading, onCancel }: Props) {
             className={cn(inp(), "cursor-pointer")}
           >
             {["KES", "USD", "EUR", "GBP"].map((c) => (
-              <option
-                key={c}
-                value={c}
-              >
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}
@@ -270,11 +264,7 @@ export function QuoteForm({ quote, onSubmit, isLoading, onCancel }: Props) {
             (default: 14 days)
           </span>
         </label>
-        <input
-          type="date"
-          {...register("expiresAt")}
-          className={inp()}
-        />
+        <input type="date" {...register("expiresAt")} className={inp()} />
       </div>
 
       {/* Line items */}
@@ -542,11 +532,7 @@ export function QuoteForm({ quote, onSubmit, isLoading, onCancel }: Props) {
             onClick={() => setValue("sendOnCreate", !sendOnCreate)}
           >
             {sendOnCreate && (
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
+              <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                 <path
                   d="M2 6l3 3 5-5"
                   stroke="#1A1A2E"

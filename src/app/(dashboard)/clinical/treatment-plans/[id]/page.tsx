@@ -260,10 +260,7 @@ export default function TreatmentPlanDetailPage({ params }: Props) {
                   value: formatCurrency(financial.totalOutstanding, "KES"),
                 },
               ].map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="bg-muted/30 rounded-xl p-3"
-                >
+                <div key={label} className="bg-muted/30 rounded-xl p-3">
                   <p className="text-xs text-muted-foreground">{label}</p>
                   <p className="text-sm font-bold text-foreground">{value}</p>
                 </div>
@@ -503,10 +500,7 @@ export default function TreatmentPlanDetailPage({ params }: Props) {
               const isSessionPanel = panel === `session-${session.id}`;
 
               return (
-                <div
-                  key={session.id}
-                  className="px-5 py-4 space-y-3"
-                >
+                <div key={session.id} className="px-5 py-4 space-y-3">
                   <div className="flex items-center gap-3">
                     {/* Session number badge */}
                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-foreground shrink-0">

@@ -120,10 +120,7 @@ export default function NewRolePage() {
           </p>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="p-5 space-y-5"
-        >
+        <form onSubmit={onSubmit} className="p-5 space-y-5">
           {/* Basic info */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

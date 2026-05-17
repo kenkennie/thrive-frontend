@@ -256,10 +256,7 @@ function ScheduleTab({ userId }: { userId: string }) {
         ) : (
           <div className="border border-border rounded-xl divide-y divide-border overflow-hidden">
             {(blockedSlots as any[]).map((slot: any) => (
-              <div
-                key={slot.id}
-                className="flex items-center gap-3 px-4 py-3"
-              >
+              <div key={slot.id} className="flex items-center gap-3 px-4 py-3">
                 <CalendarOff className="w-4 h-4 text-red-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
@@ -518,10 +515,7 @@ function PermissionsTab({ userId }: { userId: string }) {
             {(allRoles as any[])
               .filter((r) => !roleIds.includes(r.id))
               .map((r) => (
-                <option
-                  key={r.id}
-                  value={r.id}
-                >
+                <option key={r.id} value={r.id}>
                   {r.displayName}
                 </option>
               ))}
@@ -838,19 +832,13 @@ export default function StaffDetailPage({ params }: Props) {
                 <label className="text-xs font-medium text-muted-foreground">
                   Full name
                 </label>
-                <input
-                  {...form.register("fullName")}
-                  className={inp}
-                />
+                <input {...form.register("fullName")} className={inp} />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">
                   Phone
                 </label>
-                <input
-                  {...form.register("phoneNumber")}
-                  className={inp}
-                />
+                <input {...form.register("phoneNumber")} className={inp} />
               </div>
             </div>
             <div className="flex gap-2">

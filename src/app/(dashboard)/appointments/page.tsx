@@ -248,10 +248,7 @@ export default function AppointmentsPage() {
             className="h-8 px-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none cursor-pointer"
           >
             {STATUS_OPTIONS.map((o) => (
-              <option
-                key={o.value}
-                value={o.value}
-              >
+              <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
@@ -294,10 +291,7 @@ export default function AppointmentsPage() {
           ].map(({ label, cls, fn }) => {
             const count = appointments.filter(fn).length;
             return count ? (
-              <span
-                key={label}
-                className="flex items-center gap-1"
-              >
+              <span key={label} className="flex items-center gap-1">
                 <span>·</span>
                 <span className={cls}>
                   {count} {label}

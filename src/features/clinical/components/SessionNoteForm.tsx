@@ -110,11 +110,7 @@ function BigCheckbox({
         onClick={() => onChange(!checked)}
       >
         {checked && (
-          <svg
-            className="w-3 h-3"
-            viewBox="0 0 12 12"
-            fill="none"
-          >
+          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
             <path
               d="M2 6l3 3 5-5"
               stroke="#1A1A2E"
@@ -172,18 +168,12 @@ export function SessionNoteForm({
   const generateInvoice = watch("generateInvoice");
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* ── SOAP Notes ── */}
       <div>
         <SectionLabel>SOAP Notes</SectionLabel>
         <div className="space-y-3">
-          <Field
-            label="Subjective"
-            hint="What the client reports"
-          >
+          <Field label="Subjective" hint="What the client reports">
             <textarea
               {...register("subjective")}
               rows={3}
@@ -191,10 +181,7 @@ export function SessionNoteForm({
               className={ta()}
             />
           </Field>
-          <Field
-            label="Objective"
-            hint="What you observe and measure"
-          >
+          <Field label="Objective" hint="What you observe and measure">
             <textarea
               {...register("objective")}
               rows={3}
@@ -202,10 +189,7 @@ export function SessionNoteForm({
               className={ta()}
             />
           </Field>
-          <Field
-            label="Assessment"
-            hint="Clinical diagnosis or evaluation"
-          >
+          <Field label="Assessment" hint="Clinical diagnosis or evaluation">
             <textarea
               {...register("assessment")}
               rows={3}
@@ -213,10 +197,7 @@ export function SessionNoteForm({
               className={ta()}
             />
           </Field>
-          <Field
-            label="Plan"
-            hint="Next steps"
-          >
+          <Field label="Plan" hint="Next steps">
             <textarea
               {...register("plan")}
               rows={3}
@@ -279,10 +260,7 @@ export function SessionNoteForm({
               className={ta()}
             />
           </Field>
-          <Field
-            label="Aftercare instructions"
-            hint="Shown to client"
-          >
+          <Field label="Aftercare instructions" hint="Shown to client">
             <textarea
               {...register("aftercareInstructions")}
               rows={3}

@@ -164,10 +164,7 @@ export default function PaymentsPage() {
                 className="w-full h-9 px-2.5 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none cursor-pointer"
               >
                 {METHOD_FILTERS.map((m) => (
-                  <option
-                    key={m.value}
-                    value={m.value}
-                  >
+                  <option key={m.value} value={m.value}>
                     {m.label}
                   </option>
                 ))}

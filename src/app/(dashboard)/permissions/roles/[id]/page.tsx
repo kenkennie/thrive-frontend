@@ -320,11 +320,7 @@ export default function RoleDetailPage({ params }: Props) {
                     }
                   >
                     {(allSel || selCount > 0) && (
-                      <svg
-                        className="w-3 h-3"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                      >
+                      <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                         <path
                           d={allSel ? "M2 6l3 3 5-5" : "M2 6h8"}
                           stroke={allSel ? "#1A1A3E" : "currentColor"}

@@ -67,10 +67,7 @@ function ThemeToggle() {
   const Icon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
   return (
-    <div
-      ref={ref}
-      className="relative"
-    >
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
         className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -127,10 +124,7 @@ function UserMenu() {
   if (!user) return null;
 
   return (
-    <div
-      ref={ref}
-      className="relative"
-    >
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg hover:bg-muted transition-colors"

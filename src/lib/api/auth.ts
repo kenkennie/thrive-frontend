@@ -118,9 +118,14 @@ const authApi = {
   getPermissions: () =>
     api.get<{
       success: boolean;
-      data: {
-        effectivePermissions: { permission: { name: string }; granted: boolean }[];
-      } | string[];
+      data:
+        | {
+            effectivePermissions: {
+              permission: { name: string };
+              granted: boolean;
+            }[];
+          }
+        | string[];
     }>("/permissions/me/permissions"),
 };
 

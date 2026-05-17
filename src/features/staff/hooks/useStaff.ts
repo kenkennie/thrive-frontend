@@ -294,8 +294,13 @@ export function useRemoveOverride(userId: string) {
 export function useSetPermissionOverride(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ permissionId, granted }: { permissionId: string; granted: boolean }) =>
-      staffApi.setOverride(userId, { permissionId, granted }),
+    mutationFn: ({
+      permissionId,
+      granted,
+    }: {
+      permissionId: string;
+      granted: boolean;
+    }) => staffApi.setOverride(userId, { permissionId, granted }),
     onSuccess: () => {
       inv(qc, [["staff", userId, "overrides"]]);
     },
@@ -305,7 +310,8 @@ export function useSetPermissionOverride(userId: string) {
 export function useDeletePermissionOverride(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (permissionId: string) => staffApi.removeOverride(userId, permissionId),
+    mutationFn: (permissionId: string) =>
+      staffApi.removeOverride(userId, permissionId),
     onSuccess: () => {
       inv(qc, [["staff", userId, "overrides"]]);
     },

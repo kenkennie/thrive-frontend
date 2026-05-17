@@ -47,13 +47,13 @@ export function ServiceAvailabilityCalendar({
   const { data: doctors } = useServiceDoctors(serviceId);
   const doctorList = Array.isArray(doctors) ? doctors : [];
 
-   const { data: avail, isLoading } = useServiceAvailability(
-     serviceId,
-     cur.month + 1,
-     cur.year,
-     doctorId || undefined,
-   );
-   const slots: SlotInfo[] = Array.isArray(avail) ? (avail as SlotInfo[]) : [];
+  const { data: avail, isLoading } = useServiceAvailability(
+    serviceId,
+    cur.month + 1,
+    cur.year,
+    doctorId || undefined,
+  );
+  const slots: SlotInfo[] = Array.isArray(avail) ? (avail as SlotInfo[]) : [];
 
   const slotMap = new Map(slots.map((s) => [s.date, s]));
 
@@ -86,10 +86,7 @@ export function ServiceAvailabilityCalendar({
           >
             <option value="">All doctors</option>
             {doctorList.map((d: any) => (
-              <option
-                key={d.id}
-                value={d.id}
-              >
+              <option key={d.id} value={d.id}>
                 {d.fullName}
               </option>
             ))}

@@ -187,10 +187,7 @@ function ServiceRow({
         >
           <option value="">Select service…</option>
           {services.map((s) => (
-            <option
-              key={s.id}
-              value={s.id}
-            >
+            <option key={s.id} value={s.id}>
               {s.name}
             </option>
           ))}
@@ -203,10 +200,7 @@ function ServiceRow({
         >
           <option value="">No variant</option>
           {variants.map((v: any) => (
-            <option
-              key={v.id}
-              value={v.id}
-            >
+            <option key={v.id} value={v.id}>
               {v.name}
             </option>
           ))}
@@ -385,10 +379,7 @@ export function AppointmentForm({
         >
           <option value="">Select doctor…</option>
           {doctors?.map((doctor: any) => (
-            <option
-              key={doctor.id}
-              value={doctor.id}
-            >
+            <option key={doctor.id} value={doctor.id}>
               {doctor.fullName}
             </option>
           ))}
@@ -426,10 +417,7 @@ export function AppointmentForm({
             >
               <option value="">Select slot…</option>
               {availableSlots.map((slot: string) => (
-                <option
-                  key={slot}
-                  value={slot}
-                >
+                <option key={slot} value={slot}>
                   {slot}
                 </option>
               ))}
@@ -483,10 +471,7 @@ export function AppointmentForm({
           >
             <option value="">Select source…</option>
             {(sources as any[]).map((s) => (
-              <option
-                key={s.id}
-                value={s.id}
-              >
+              <option key={s.id} value={s.id}>
                 {s.label}
               </option>
             ))}

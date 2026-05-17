@@ -156,10 +156,7 @@ export default function PermissionsPage() {
           {modules.map((mod) => {
             const perms: any[] = (allPerms as any)[mod] ?? [];
             return (
-              <div
-                key={mod}
-                className="px-5 py-4"
-              >
+              <div key={mod} className="px-5 py-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 capitalize">
                   {mod.replace(/_/g, " ")}
                 </p>

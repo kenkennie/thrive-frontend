@@ -2,127 +2,127 @@
 
 /* ── Tailwind v4: map CSS variables to theme tokens ── */
 @theme {
-  --color-background:             hsl(var(--background));
-  --color-foreground:             hsl(var(--foreground));
-  --color-card:                   hsl(var(--card));
-  --color-card-foreground:        hsl(var(--card-foreground));
-  --color-popover:                hsl(var(--popover));
-  --color-popover-foreground:     hsl(var(--popover-foreground));
-  --color-primary:                hsl(var(--primary));
-  --color-primary-foreground:     hsl(var(--primary-foreground));
-  --color-secondary:              hsl(var(--secondary));
-  --color-secondary-foreground:   hsl(var(--secondary-foreground));
-  --color-muted:                  hsl(var(--muted));
-  --color-muted-foreground:       hsl(var(--muted-foreground));
-  --color-accent:                 hsl(var(--accent));
-  --color-accent-foreground:      hsl(var(--accent-foreground));
-  --color-destructive:            hsl(var(--destructive));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border:                 hsl(var(--border));
-  --color-input:                  hsl(var(--input));
-  --color-ring:                   hsl(var(--ring));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
 
-  --color-brand-navy:       #1A1A2E;
-  --color-brand-navy-mid:   #2A2A4E;
-  --color-brand-gold:       #C8A96E;
-  --color-brand-gold-light: #F5EDD6;
-  --color-brand-gold-dark:  #A8893E;
+  --color-brand-navy: #1a1a2e;
+  --color-brand-navy-mid: #2a2a4e;
+  --color-brand-gold: #c8a96e;
+  --color-brand-gold-light: #f5edd6;
+  --color-brand-gold-dark: #a8893e;
 
-  --color-sidebar-bg:     hsl(var(--sidebar-bg));
-  --color-sidebar-fg:     hsl(var(--sidebar-fg));
+  --color-sidebar-bg: hsl(var(--sidebar-bg));
+  --color-sidebar-fg: hsl(var(--sidebar-fg));
   --color-sidebar-accent: hsl(var(--sidebar-accent));
   --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-muted:  hsl(var(--sidebar-muted));
+  --color-sidebar-muted: hsl(var(--sidebar-muted));
 
-  --color-success:            hsl(var(--success));
+  --color-success: hsl(var(--success));
   --color-success-foreground: hsl(var(--success-foreground));
-  --color-warning:            hsl(var(--warning));
+  --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
-  --color-info:               hsl(var(--info));
-  --color-info-foreground:    hsl(var(--info-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 
-  --font-sans:  'DM Sans', system-ui, sans-serif;
-  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up:   accordion-up 0.2s ease-out;
-  --animate-fade-in:        fade-in 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
 }
 
 /* ── CSS custom properties — light mode ── */
 :root {
-  --brand-navy:      #1A1A2E;
-  --brand-navy-mid:  #2A2A4E;
-  --brand-gold:      #C8A96E;
-  --brand-gold-light:#F5EDD6;
-  --brand-gold-dark: #A8893E;
+  --brand-navy: #1a1a2e;
+  --brand-navy-mid: #2a2a4e;
+  --brand-gold: #c8a96e;
+  --brand-gold-light: #f5edd6;
+  --brand-gold-dark: #a8893e;
 
-  --background:           0 0% 99%;
-  --foreground:           233 33% 14%;
-  --card:                 0 0% 100%;
-  --card-foreground:      233 33% 14%;
-  --popover:              0 0% 100%;
-  --popover-foreground:   233 33% 14%;
-  --primary:              35 47% 60%;
-  --primary-foreground:   233 33% 14%;
-  --secondary:            35 67% 95%;
+  --background: 0 0% 99%;
+  --foreground: 233 33% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 233 33% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 233 33% 14%;
+  --primary: 35 47% 60%;
+  --primary-foreground: 233 33% 14%;
+  --secondary: 35 67% 95%;
   --secondary-foreground: 233 33% 14%;
-  --muted:                220 13% 96%;
-  --muted-foreground:     220 9% 46%;
-  --accent:               35 47% 60%;
-  --accent-foreground:    233 33% 14%;
-  --destructive:          0 84% 60%;
+  --muted: 220 13% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 35 47% 60%;
+  --accent-foreground: 233 33% 14%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --border:               220 13% 91%;
-  --input:                220 13% 91%;
-  --ring:                 35 47% 60%;
-  --radius:               0.625rem;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 35 47% 60%;
+  --radius: 0.625rem;
 
-  --success:              142 71% 45%;
-  --success-foreground:   0 0% 98%;
-  --warning:              38 92% 50%;
-  --warning-foreground:   233 33% 14%;
-  --info:                 210 79% 46%;
-  --info-foreground:      0 0% 98%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 98%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 233 33% 14%;
+  --info: 210 79% 46%;
+  --info-foreground: 0 0% 98%;
 
-  --sidebar-bg:           233 33% 14%;
-  --sidebar-fg:           35 40% 85%;
-  --sidebar-accent:       35 47% 60%;
-  --sidebar-border:       233 20% 22%;
-  --sidebar-muted:        233 15% 55%;
+  --sidebar-bg: 233 33% 14%;
+  --sidebar-fg: 35 40% 85%;
+  --sidebar-accent: 35 47% 60%;
+  --sidebar-border: 233 20% 22%;
+  --sidebar-muted: 233 15% 55%;
 }
 
 /* ── Dark mode ── */
 .dark {
-  --background:           233 33% 8%;
-  --foreground:           35 40% 92%;
-  --card:                 233 33% 11%;
-  --card-foreground:      35 40% 92%;
-  --popover:              233 33% 11%;
-  --popover-foreground:   35 40% 92%;
-  --primary:              35 47% 60%;
-  --primary-foreground:   233 33% 8%;
-  --secondary:            233 20% 18%;
+  --background: 233 33% 8%;
+  --foreground: 35 40% 92%;
+  --card: 233 33% 11%;
+  --card-foreground: 35 40% 92%;
+  --popover: 233 33% 11%;
+  --popover-foreground: 35 40% 92%;
+  --primary: 35 47% 60%;
+  --primary-foreground: 233 33% 8%;
+  --secondary: 233 20% 18%;
   --secondary-foreground: 35 40% 85%;
-  --muted:                233 20% 16%;
-  --muted-foreground:     233 10% 55%;
-  --accent:               233 20% 18%;
-  --accent-foreground:    35 40% 85%;
-  --destructive:          0 70% 50%;
+  --muted: 233 20% 16%;
+  --muted-foreground: 233 10% 55%;
+  --accent: 233 20% 18%;
+  --accent-foreground: 35 40% 85%;
+  --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 98%;
-  --border:               233 20% 20%;
-  --input:                233 20% 20%;
-  --ring:                 35 47% 60%;
+  --border: 233 20% 20%;
+  --input: 233 20% 20%;
+  --ring: 35 47% 60%;
 
-  --sidebar-bg:           233 33% 6%;
-  --sidebar-fg:           35 40% 85%;
-  --sidebar-accent:       35 47% 60%;
-  --sidebar-border:       233 20% 14%;
-  --sidebar-muted:        233 15% 45%;
+  --sidebar-bg: 233 33% 6%;
+  --sidebar-fg: 35 40% 85%;
+  --sidebar-accent: 35 47% 60%;
+  --sidebar-border: 233 20% 14%;
+  --sidebar-muted: 233 15% 45%;
 }
 
 /* ── Base styles — no @apply needed in v4 ── */
@@ -133,8 +133,8 @@
 
   body {
     background-color: hsl(var(--background));
-    color:            hsl(var(--foreground));
-    font-family:      'DM Sans', system-ui, sans-serif;
+    color: hsl(var(--foreground));
+    font-family: "DM Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -142,30 +142,70 @@
 
 /* ── Keyframes ── */
 @keyframes accordion-down {
-  from { height: 0; }
-  to   { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to   { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Custom scrollbar ── */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: hsl(var(--border)); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
 
 /* ── Utility classes ── */
-.text-gold      { color: var(--brand-gold); }
-.bg-gold        { background-color: var(--brand-gold); }
-.bg-navy        { background-color: var(--brand-navy); }
-.border-gold    { border-color: var(--brand-gold); }
-.sidebar-bg     { background-color: hsl(var(--sidebar-bg)); }
-.sidebar-fg     { color: hsl(var(--sidebar-fg)); }
-.sidebar-accent { color: hsl(var(--sidebar-accent)); }
-.sidebar-muted  { color: hsl(var(--sidebar-muted)); }
+.text-gold {
+  color: var(--brand-gold);
+}
+.bg-gold {
+  background-color: var(--brand-gold);
+}
+.bg-navy {
+  background-color: var(--brand-navy);
+}
+.border-gold {
+  border-color: var(--brand-gold);
+}
+.sidebar-bg {
+  background-color: hsl(var(--sidebar-bg));
+}
+.sidebar-fg {
+  color: hsl(var(--sidebar-fg));
+}
+.sidebar-accent {
+  color: hsl(var(--sidebar-accent));
+}
+.sidebar-muted {
+  color: hsl(var(--sidebar-muted));
+}

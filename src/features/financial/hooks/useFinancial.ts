@@ -246,8 +246,13 @@ export function useCreateCreditNote() {
 export function useApplyCreditNote() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, targetInvoiceId }: { id: string; targetInvoiceId: string }) =>
-      financialApi.applyCreditNote(id, targetInvoiceId),
+    mutationFn: ({
+      id,
+      targetInvoiceId,
+    }: {
+      id: string;
+      targetInvoiceId: string;
+    }) => financialApi.applyCreditNote(id, targetInvoiceId),
     onSuccess: () => {
       toast.success("Credit note applied");
       qc.invalidateQueries({ queryKey: ["invoices"] });
@@ -286,8 +291,13 @@ export function useCreateDebitNote() {
 export function useMarkDebitNotePaid() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, paymentReference }: { id: string; paymentReference?: string }) =>
-      financialApi.markDebitNotePaid(id, paymentReference),
+    mutationFn: ({
+      id,
+      paymentReference,
+    }: {
+      id: string;
+      paymentReference?: string;
+    }) => financialApi.markDebitNotePaid(id, paymentReference),
     onSuccess: () => {
       toast.success("Debit note marked as paid");
       qc.invalidateQueries({ queryKey: ["invoices"] });

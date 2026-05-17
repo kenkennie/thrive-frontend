@@ -37,10 +37,7 @@ function LookupManager({
   const items = Array.isArray(data) ? data : [];
 
   return (
-    <SettingsSection
-      title={title}
-      description={description}
-    >
+    <SettingsSection title={title} description={description}>
       <div className="space-y-2">
         {isLoading ? (
           <div className="flex justify-center py-4">

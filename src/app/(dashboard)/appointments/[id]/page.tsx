@@ -654,10 +654,7 @@ export default function AppointmentDetailPage({ params }: Props) {
                 <h1 className="text-xl font-bold text-foreground">
                   {appt.client.fullName}
                 </h1>
-                <StatusPill
-                  name={appt.status.name}
-                  label={appt.status.label}
-                />
+                <StatusPill name={appt.status.name} label={appt.status.label} />
               </div>
               <div className="flex items-center gap-3 mt-1.5 flex-wrap text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">

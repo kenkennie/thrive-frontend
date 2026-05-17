@@ -200,10 +200,7 @@ export function TreatmentPlanForm({
   const doctors: any[] = Array.isArray(drData) ? drData : [];
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-5"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Client + Doctor */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
@@ -229,10 +226,7 @@ export function TreatmentPlanForm({
           >
             <option value="">Select doctor…</option>
             {doctors.map((d) => (
-              <option
-                key={d.id}
-                value={d.id}
-              >
+              <option key={d.id} value={d.id}>
                 {d.fullName}
               </option>
             ))}
@@ -404,11 +398,7 @@ export function TreatmentPlanForm({
             onClick={() => setValue("generateQuote", !generateQuote)}
           >
             {generateQuote && (
-              <svg
-                className="w-3 h-3"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
+              <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                 <path
                   d="M2 6l3 3 5-5"
                   stroke="#1A1A2E"

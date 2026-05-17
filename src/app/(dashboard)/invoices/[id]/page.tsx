@@ -530,17 +530,11 @@ export default function InvoiceDetailPage({ params }: Props) {
           )}
 
           {activePanel === "credit" && (
-            <CreditNoteForm
-              invoiceId={id}
-              onDone={closePanel}
-            />
+            <CreditNoteForm invoiceId={id} onDone={closePanel} />
           )}
 
           {activePanel === "debit" && (
-            <DebitNoteForm
-              invoiceId={id}
-              onDone={closePanel}
-            />
+            <DebitNoteForm invoiceId={id} onDone={closePanel} />
           )}
 
           {/* Secondary actions */}
@@ -678,10 +672,7 @@ export default function InvoiceDetailPage({ params }: Props) {
           </div>
           <div className="divide-y divide-border/60">
             {inv.payments.map((p: any) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 px-5 py-3.5"
-              >
+              <div key={p.id} className="flex items-center gap-3 px-5 py-3.5">
                 <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
                 </div>

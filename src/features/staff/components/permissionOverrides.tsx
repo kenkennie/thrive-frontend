@@ -77,9 +77,7 @@ export function PermissionOverrides({ userId }: Props) {
                 )}
                 {o.permission.displayName}
                 <button
-onClick={() =>
-                     deleteOverride.mutate(o.permission.id)
-                   }
+                  onClick={() => deleteOverride.mutate(o.permission.id)}
                   className="ml-0.5 hover:opacity-70 transition-opacity"
                 >
                   <X className="w-3 h-3" />
@@ -119,10 +117,7 @@ onClick={() =>
             >
               <option value="">All modules</option>
               {modules.map((m) => (
-                <option
-                  key={m as string}
-                  value={m as string}
-                >
+                <option key={m as string} value={m as string}>
                   {m as string}
                 </option>
               ))}

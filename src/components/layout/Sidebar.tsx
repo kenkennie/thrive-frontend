@@ -151,10 +151,7 @@ export function Sidebar() {
       {/* ── Nav ── */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
         {filteredGroups.map((group) => (
-          <div
-            key={group.label}
-            className="mb-3"
-          >
+          <div key={group.label} className="mb-3">
             {!collapsed && (
               <p
                 className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest"
@@ -165,11 +162,7 @@ export function Sidebar() {
             )}
             <div className="space-y-0.5">
               {group.items.map((item) => (
-                <NavLink
-                  key={item.href}
-                  item={item}
-                  collapsed={collapsed}
-                />
+                <NavLink key={item.href} item={item} collapsed={collapsed} />
               ))}
             </div>
           </div>

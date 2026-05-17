@@ -34,10 +34,7 @@ function Lightbox({ photo, onClose }: LightboxProps) {
       <button className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
         <X className="w-5 h-5" />
       </button>
-      <div
-        className="max-w-3xl w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
         <img
           src={photo.photoUrl}
           alt={photo.caption ?? photo.type}
@@ -158,10 +155,7 @@ export function PhotoGallery({ clientId }: { clientId: string }) {
       )}
 
       {lightbox && (
-        <Lightbox
-          photo={lightbox}
-          onClose={() => setLightbox(null)}
-        />
+        <Lightbox photo={lightbox} onClose={() => setLightbox(null)} />
       )}
     </div>
   );

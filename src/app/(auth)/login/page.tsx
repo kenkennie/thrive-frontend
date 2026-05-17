@@ -111,10 +111,7 @@ export default function LoginPage() {
           className="relative z-10 pt-6 border-t opacity-40"
           style={{ borderColor: "var(--brand-gold)" }}
         >
-          <p
-            className="text-xs italic"
-            style={{ color: "var(--brand-gold)" }}
-          >
+          <p className="text-xs italic" style={{ color: "var(--brand-gold)" }}>
             "Certified. Holistic. Leading."
           </p>
         </div>
@@ -147,10 +144,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
@@ -251,10 +245,7 @@ export default function LoginPage() {
 
           <p className="text-center text-xs text-muted-foreground mt-8">
             Staff access only. Contact{" "}
-            <a
-              href="mailto:hello@thriveaesthetics.co.ke"
-              className="underline"
-            >
+            <a href="mailto:hello@thriveaesthetics.co.ke" className="underline">
               support
             </a>{" "}
             for help.

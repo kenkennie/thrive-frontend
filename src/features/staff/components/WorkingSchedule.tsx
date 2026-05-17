@@ -264,10 +264,7 @@ function BlockedSlots({ userId }: { userId: string }) {
       ) : (
         <div className="border border-border rounded-xl overflow-hidden divide-y divide-border">
           {slots.map((slot) => (
-            <div
-              key={slot.id}
-              className="flex items-center gap-4 px-4 py-3"
-            >
+            <div key={slot.id} className="flex items-center gap-4 px-4 py-3">
               <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
                 <CalendarOff className="w-4 h-4 text-red-600 dark:text-red-400" />
               </div>

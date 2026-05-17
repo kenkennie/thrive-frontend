@@ -229,10 +229,7 @@ export function InvoiceForm({ invoice, onSubmit, isLoading, onCancel }: Props) {
   const [showDiscount, setShowDiscount] = useState(!!invoice?.discountType);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Client + Currency */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="sm:col-span-2 space-y-1.5">
@@ -257,10 +254,7 @@ export function InvoiceForm({ invoice, onSubmit, isLoading, onCancel }: Props) {
             className={cn(inp(), "cursor-pointer")}
           >
             {["KES", "USD", "EUR", "GBP"].map((c) => (
-              <option
-                key={c}
-                value={c}
-              >
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}
@@ -279,10 +273,7 @@ export function InvoiceForm({ invoice, onSubmit, isLoading, onCancel }: Props) {
             className={cn(inp(), "cursor-pointer")}
           >
             {PAYMENT_TERMS.map((t) => (
-              <option
-                key={t.value}
-                value={t.value}
-              >
+              <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
@@ -292,11 +283,7 @@ export function InvoiceForm({ invoice, onSubmit, isLoading, onCancel }: Props) {
           <label className="text-sm font-medium text-foreground">
             Due date
           </label>
-          <input
-            type="date"
-            {...register("dueDate")}
-            className={inp()}
-          />
+          <input type="date" {...register("dueDate")} className={inp()} />
         </div>
       </div>
 

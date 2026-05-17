@@ -64,10 +64,7 @@ export function CategoryManager({
         </button>
 
         {categories.map((cat: any) => (
-          <div
-            key={cat.id}
-            className="group flex items-center gap-1"
-          >
+          <div key={cat.id} className="group flex items-center gap-1">
             {editId === cat.id ? (
               <div className="flex items-center gap-1.5 flex-1 px-2">
                 <input

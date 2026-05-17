@@ -199,10 +199,7 @@ export function AddToWaitlistForm({ onDone }: Props) {
           >
             <option value="">Select service…</option>
             {services.map((s) => (
-              <option
-                key={s.id}
-                value={s.id}
-              >
+              <option key={s.id} value={s.id}>
                 {s.name}
               </option>
             ))}
@@ -223,10 +220,7 @@ export function AddToWaitlistForm({ onDone }: Props) {
           >
             <option value="">Any doctor</option>
             {doctors.map((d) => (
-              <option
-                key={d.id}
-                value={d.id}
-              >
+              <option key={d.id} value={d.id}>
                 {d.fullName}
               </option>
             ))}
@@ -266,11 +260,7 @@ export function AddToWaitlistForm({ onDone }: Props) {
               onClick={() => setValue("flexibleDate", !flexibleDate)}
             >
               {flexibleDate && (
-                <svg
-                  className="w-3 h-3"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                >
+                <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                   <path
                     d="M2 6l3 3 5-5"
                     stroke="#1A1A2E"

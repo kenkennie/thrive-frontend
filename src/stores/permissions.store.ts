@@ -25,24 +25,24 @@ export const usePermissionsStore = create<PermissionsState>()((set, get) => ({
   permissions: new Set(),
   isLoaded: false,
 
-   load: async () => {
-     try {
-       const { data } = await authApi.getPermissions();
-       const inner: PermissionsData | string[] = data.data;
-       let permNames: string[] = [];
-       if (Array.isArray(inner)) {
-         permNames = inner;
-       } else {
-         permNames = inner.effectivePermissions
-           .filter((p) => p.granted)
-           .map((p) => p.permission.name)
-           .filter(Boolean);
-       }
-       set({ permissions: new Set(permNames), isLoaded: true });
-     } catch {
-       set({ permissions: new Set(), isLoaded: true });
-     }
-   },
+  load: async () => {
+    try {
+      const { data } = await authApi.getPermissions();
+      const inner: PermissionsData | string[] = data.data;
+      let permNames: string[] = [];
+      if (Array.isArray(inner)) {
+        permNames = inner;
+      } else {
+        permNames = inner.effectivePermissions
+          .filter((p) => p.granted)
+          .map((p) => p.permission.name)
+          .filter(Boolean);
+      }
+      set({ permissions: new Set(permNames), isLoaded: true });
+    } catch {
+      set({ permissions: new Set(), isLoaded: true });
+    }
+  },
 
   hasPermission: (permission) => {
     const { permissions } = get();

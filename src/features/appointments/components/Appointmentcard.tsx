@@ -1,32 +1,33 @@
-'use client';
+"use client";
 
-import { formatTime, cn } from '@/lib/utils';
-import { StatusBadge }    from './StatusBadge';
-import type { Appointment } from '@/lib/api/appointments';
-import { Phone, AlertCircle } from 'lucide-react';
+import { formatTime, cn } from "@/lib/utils";
+import { StatusBadge } from "./StatusBadge";
+import type { Appointment } from "@/lib/api/appointments";
+import { Phone, AlertCircle } from "lucide-react";
 
 interface Props {
   appointment: Appointment;
-  onClick?:   () => void;
-  compact?:   boolean;
+  onClick?: () => void;
+  compact?: boolean;
 }
 
 export function AppointmentCard({ appointment, onClick, compact }: Props) {
-  const { client, doctor, status, appointmentServices, startTime, endTime } = appointment;
+  const { client, doctor, status, appointmentServices, startTime, endTime } =
+    appointment;
   const primary = appointmentServices?.[0];
-  const serviceColor = (primary?.service as any)?.color ?? '#C8A96E';
+  const serviceColor = (primary?.service as any)?.color ?? "#C8A96E";
   const services = appointmentServices.map((s) =>
-    s.variant ? `${s.service.name} — ${s.variant.name}` : s.service.name
+    s.variant ? `${s.service.name} — ${s.variant.name}` : s.service.name,
   );
 
   return (
     <div
       onClick={onClick}
       className={cn(
-        'group relative bg-card rounded-xl border border-border transition-all duration-150',
-        'hover:shadow-md hover:border-primary/30',
-        onClick && 'cursor-pointer',
-        compact ? 'p-3' : 'p-4',
+        "group relative bg-card rounded-xl border border-border transition-all duration-150",
+        "hover:shadow-md hover:border-primary/30",
+        onClick && "cursor-pointer",
+        compact ? "p-3" : "p-4",
       )}
     >
       {/* Left color strip */}
@@ -34,7 +35,7 @@ export function AppointmentCard({ appointment, onClick, compact }: Props) {
         className="absolute left-0 top-3 bottom-3 w-1 rounded-full"
         style={{ backgroundColor: serviceColor }}
       />
-      <div className={cn('pl-3', compact ? '' : 'pl-4')}>
+      <div className={cn("pl-3", compact ? "" : "pl-4")}>
         {/* Header row */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="min-w-0 flex-1">
@@ -74,7 +75,7 @@ export function AppointmentCard({ appointment, onClick, compact }: Props) {
         {!compact && (
           <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
             <span className="text-xs text-muted-foreground">
-              Dr. {doctor.fullName.split(' ').slice(-1)[0]}
+              Dr. {doctor.fullName.split(" ").slice(-1)[0]}
             </span>
             <a
               href={`tel:${client.phoneNumber}`}

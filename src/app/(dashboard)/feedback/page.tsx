@@ -151,11 +151,7 @@ function RespondForm({
           onClick={() => setPub(!pub)}
         >
           {pub && (
-            <svg
-              className="w-3 h-3"
-              viewBox="0 0 12 12"
-              fill="none"
-            >
+            <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
               <path
                 d="M2 6l3 3 5-5"
                 stroke="#1A1A2E"
@@ -526,10 +522,7 @@ export default function FeedbackPage() {
                                   <p className="text-xs text-muted-foreground mb-1">
                                     Service
                                   </p>
-                                  <Stars
-                                    rating={fb.serviceRating}
-                                    size="sm"
-                                  />
+                                  <Stars rating={fb.serviceRating} size="sm" />
                                   <p className="text-sm font-bold mt-1">
                                     {fb.serviceRating}/5
                                   </p>
@@ -540,10 +533,7 @@ export default function FeedbackPage() {
                                   <p className="text-xs text-muted-foreground mb-1">
                                     Staff
                                   </p>
-                                  <Stars
-                                    rating={fb.staffRating}
-                                    size="sm"
-                                  />
+                                  <Stars rating={fb.staffRating} size="sm" />
                                   <p className="text-sm font-bold mt-1">
                                     {fb.staffRating}/5
                                   </p>
@@ -554,10 +544,7 @@ export default function FeedbackPage() {
                                   <p className="text-xs text-muted-foreground mb-1">
                                     Facility
                                   </p>
-                                  <Stars
-                                    rating={fb.facilityRating}
-                                    size="sm"
-                                  />
+                                  <Stars rating={fb.facilityRating} size="sm" />
                                   <p className="text-sm font-bold mt-1">
                                     {fb.facilityRating}/5
                                   </p>

@@ -89,25 +89,16 @@ export function ClientForm({ client, onSubmit, isLoading, onCancel }: Props) {
   const { errors } = form.formState;
 
   return (
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="space-y-5"
-    >
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field
-          label="Full name *"
-          error={errors.fullName?.message}
-        >
+        <Field label="Full name *" error={errors.fullName?.message}>
           <input
             {...form.register("fullName")}
             placeholder="Jane Doe"
             className={inputCls(errors.fullName?.message)}
           />
         </Field>
-        <Field
-          label="Phone number *"
-          error={errors.phoneNumber?.message}
-        >
+        <Field label="Phone number *" error={errors.phoneNumber?.message}>
           <input
             {...form.register("phoneNumber")}
             placeholder="+254 7XX XXX XXX"
@@ -116,10 +107,7 @@ export function ClientForm({ client, onSubmit, isLoading, onCancel }: Props) {
         </Field>
       </div>
 
-      <Field
-        label="Email"
-        error={errors.email?.message}
-      >
+      <Field label="Email" error={errors.email?.message}>
         <input
           {...form.register("email")}
           type="email"
@@ -143,10 +131,7 @@ export function ClientForm({ client, onSubmit, isLoading, onCancel }: Props) {
           >
             <option value="">Select…</option>
             {genders?.map((g) => (
-              <option
-                key={g.id}
-                value={g.id}
-              >
+              <option key={g.id} value={g.id}>
                 {g.label}
               </option>
             ))}
@@ -159,10 +144,7 @@ export function ClientForm({ client, onSubmit, isLoading, onCancel }: Props) {
           >
             <option value="">Select…</option>
             {skinTypes?.map((s) => (
-              <option
-                key={s.id}
-                value={s.id}
-              >
+              <option key={s.id} value={s.id}>
                 {s.label}
               </option>
             ))}

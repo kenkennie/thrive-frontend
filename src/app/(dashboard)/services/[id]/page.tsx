@@ -310,11 +310,7 @@ function ContraindicationsTab({ serviceId }: { serviceId: string }) {
               onClick={() => setIsCritical((v) => !v)}
             >
               {isCritical && (
-                <svg
-                  className="w-3 h-3"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                >
+                <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                   <path
                     d="M2 6l3 3 5-5"
                     stroke="white"
@@ -571,10 +567,7 @@ function AvailabilityTab({ serviceId }: { serviceId: string }) {
           >
             <option value="">All doctors</option>
             {doctorList.map((d: any) => (
-              <option
-                key={d.id}
-                value={d.id}
-              >
+              <option key={d.id} value={d.id}>
                 {d.fullName}
               </option>
             ))}
@@ -921,10 +914,7 @@ export default function ServiceDetailPage({ params }: Props) {
             ))}
 
           {tab === "variants" && (
-            <VariantsTab
-              serviceId={id}
-              currency={service.currency}
-            />
+            <VariantsTab serviceId={id} currency={service.currency} />
           )}
           {tab === "contraindications" && (
             <ContraindicationsTab serviceId={id} />

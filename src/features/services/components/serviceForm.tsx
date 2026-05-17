@@ -166,11 +166,7 @@ function BigCheckbox({
           style={checked ? { backgroundColor: "var(--brand-gold)" } : undefined}
         >
           {checked && (
-            <svg
-              className="w-3 h-3"
-              viewBox="0 0 12 12"
-              fill="none"
-            >
+            <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
               <path
                 d="M2 6l3 3 5-5"
                 stroke="#1A1A2E"
@@ -256,10 +252,7 @@ export function ServiceForm({ service, onSubmit, isLoading, onCancel }: Props) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* ── Basic details ── */}
       <div className="flex gap-3">
         <div className="flex-1">
@@ -315,10 +308,7 @@ export function ServiceForm({ service, onSubmit, isLoading, onCancel }: Props) {
             className={cn(inp(errors.serviceType?.message), "cursor-pointer")}
           >
             {SERVICE_TYPES.map((t) => (
-              <option
-                key={t.value}
-                value={t.value}
-              >
+              <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
@@ -342,10 +332,7 @@ export function ServiceForm({ service, onSubmit, isLoading, onCancel }: Props) {
           >
             <option value="">Select category…</option>
             {categories.map((c: any) => (
-              <option
-                key={c.id}
-                value={c.id}
-              >
+              <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
@@ -442,10 +429,7 @@ export function ServiceForm({ service, onSubmit, isLoading, onCancel }: Props) {
             className={cn(inp(), "cursor-pointer")}
           >
             {CURRENCIES.map((c) => (
-              <option
-                key={c}
-                value={c}
-              >
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}
@@ -533,10 +517,7 @@ export function ServiceForm({ service, onSubmit, isLoading, onCancel }: Props) {
                 className={cn(inp(), "cursor-pointer")}
               >
                 {CONSULTATION_FEE_MODELS.map((m) => (
-                  <option
-                    key={m.value}
-                    value={m.value}
-                  >
+                  <option key={m.value} value={m.value}>
                     {m.label}
                   </option>
                 ))}

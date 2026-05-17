@@ -384,10 +384,7 @@ export default function RolesPage() {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <RoleForm
-            role={editRole}
-            onDone={() => setEditRole(null)}
-          />
+          <RoleForm role={editRole} onDone={() => setEditRole(null)} />
         </div>
       )}
 
@@ -504,10 +501,7 @@ export default function RolesPage() {
                   return acc;
                 }, {});
                 return Object.entries(grouped).map(([mod, mperms]) => (
-                  <div
-                    key={mod}
-                    className="mb-3"
-                  >
+                  <div key={mod} className="mb-3">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 px-1">
                       {mod}
                     </p>

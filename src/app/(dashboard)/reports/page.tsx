@@ -303,10 +303,7 @@ export default function ReportsPage() {
 
           {/* Revenue + payment methods */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <SectionCard
-              title="Revenue breakdown"
-              loading={loadOverview}
-            >
+            <SectionCard title="Revenue breakdown" loading={loadOverview}>
               <div className="space-y-3">
                 {[
                   { label: "Gross (KES)", value: overview?.revenue?.kes },
@@ -319,10 +316,7 @@ export default function ReportsPage() {
                   { label: "Net (KES equiv)", value: overview?.revenue?.net },
                 ].map(({ label, value, neg }) =>
                   value != null ? (
-                    <div
-                      key={label}
-                      className="flex justify-between text-sm"
-                    >
+                    <div key={label} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
                       <span
                         className={cn(
@@ -342,10 +336,7 @@ export default function ReportsPage() {
               </div>
             </SectionCard>
 
-            <SectionCard
-              title="Payment methods"
-              loading={loadOverview}
-            >
+            <SectionCard title="Payment methods" loading={loadOverview}>
               <div className="space-y-2.5">
                 {(overview?.paymentMethods ?? []).map((m: any) => (
                   <MiniBar
@@ -370,10 +361,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Trend chart — simple bar */}
-          <SectionCard
-            title="Daily trend"
-            loading={loadTrend}
-          >
+          <SectionCard title="Daily trend" loading={loadTrend}>
             {(trend?.data ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
                 No trend data
@@ -418,10 +406,7 @@ export default function ReportsPage() {
 
           {/* Booking sources */}
           {(overview?.bookingSources ?? []).length > 0 && (
-            <SectionCard
-              title="Booking sources"
-              loading={loadOverview}
-            >
+            <SectionCard title="Booking sources" loading={loadOverview}>
               <div className="space-y-2.5">
                 {(overview?.bookingSources ?? [])
                   .sort((a: any, b: any) => b.count - a.count)
@@ -444,10 +429,7 @@ export default function ReportsPage() {
 
           {/* No-shows */}
           {(noShows?.data ?? []).length > 0 && (
-            <SectionCard
-              title="Top no-show clients"
-              loading={loadNoShows}
-            >
+            <SectionCard title="Top no-show clients" loading={loadNoShows}>
               <div className="divide-y divide-border/60">
                 {(noShows?.data ?? []).slice(0, 5).map((n: any) => (
                   <div
@@ -479,10 +461,7 @@ export default function ReportsPage() {
 
       {/* ── SERVICES ── */}
       {tab === "services" && (
-        <SectionCard
-          title="Service performance"
-          loading={loadServices}
-        >
+        <SectionCard title="Service performance" loading={loadServices}>
           {(services?.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">
               No data
@@ -618,10 +597,7 @@ export default function ReportsPage() {
                         cls: "text-foreground",
                       },
                     ].map(({ label, value, cls }) => (
-                      <div
-                        key={label}
-                        className="bg-muted/30 rounded-xl p-2.5"
-                      >
+                      <div key={label} className="bg-muted/30 rounded-xl p-2.5">
                         <p className="text-[10px] text-muted-foreground">
                           {label}
                         </p>
@@ -650,10 +626,7 @@ export default function ReportsPage() {
 
       {/* ── TOP CLIENTS ── */}
       {tab === "clients" && (
-        <SectionCard
-          title="Top clients by visits"
-          loading={loadClients}
-        >
+        <SectionCard title="Top clients by visits" loading={loadClients}>
           {(clients?.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">
               No data
@@ -742,10 +715,7 @@ export default function ReportsPage() {
       {/* ── AGING ── */}
       {tab === "aging" && (
         <div className="space-y-4">
-          <SectionCard
-            title="Outstanding invoice aging"
-            loading={loadAging}
-          >
+          <SectionCard title="Outstanding invoice aging" loading={loadAging}>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 {
@@ -807,10 +777,7 @@ export default function ReportsPage() {
       {/* ── PEAK HOURS ── */}
       {tab === "peak" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <SectionCard
-            title="Bookings by hour"
-            loading={loadPeak}
-          >
+          <SectionCard title="Bookings by hour" loading={loadPeak}>
             <div className="flex items-end gap-1 h-40 pt-2">
               {(peak?.byHour ?? []).map((h: any) => {
                 const pct =
@@ -849,10 +816,7 @@ export default function ReportsPage() {
             </div>
           </SectionCard>
 
-          <SectionCard
-            title="Bookings by day"
-            loading={loadPeak}
-          >
+          <SectionCard title="Bookings by day" loading={loadPeak}>
             <div className="space-y-2.5">
               {(peak?.byDayOfWeek ?? []).map((d: any) => (
                 <MiniBar

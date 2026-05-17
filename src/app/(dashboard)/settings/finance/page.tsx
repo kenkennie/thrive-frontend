@@ -79,10 +79,7 @@ export default function FinancePage() {
                 className={inputCls() + " cursor-pointer"}
               >
                 {CURRENCIES.map((c) => (
-                  <option
-                    key={c}
-                    value={c}
-                  >
+                  <option key={c} value={c}>
                     {c}
                   </option>
                 ))}
@@ -116,10 +113,7 @@ export default function FinancePage() {
             { key: "creditNotePrefix", label: "Credit Note" },
             { key: "debitNotePrefix", label: "Debit Note" },
           ].map(({ key, label }) => (
-            <Field
-              key={key}
-              label={label}
-            >
+            <Field key={key} label={label}>
               <input
                 {...form.register(key as any)}
                 placeholder={label.substring(0, 3).toUpperCase()}

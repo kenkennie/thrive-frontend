@@ -323,18 +323,12 @@ export default function SessionDetailPage({ params }: Props) {
                     label="S — Subjective"
                     value={session.subjective}
                   />
-                  <SoapField
-                    label="O — Objective"
-                    value={session.objective}
-                  />
+                  <SoapField label="O — Objective" value={session.objective} />
                   <SoapField
                     label="A — Assessment"
                     value={session.assessment}
                   />
-                  <SoapField
-                    label="P — Plan"
-                    value={session.plan}
-                  />
+                  <SoapField label="P — Plan" value={session.plan} />
                 </>
               )}
               {session.clientFeedbackDuringSession && (
@@ -371,10 +365,7 @@ export default function SessionDetailPage({ params }: Props) {
               )}
 
               <div className="space-y-0">
-                <DetailRow
-                  label="Products used"
-                  value={session.productsUsed}
-                />
+                <DetailRow label="Products used" value={session.productsUsed} />
                 <DetailRow
                   label="Equipment used"
                   value={session.equipmentUsed}
@@ -383,10 +374,7 @@ export default function SessionDetailPage({ params }: Props) {
                   label="Device settings"
                   value={session.settingsUsed}
                 />
-                <DetailRow
-                  label="Skin reaction"
-                  value={session.skinReaction}
-                />
+                <DetailRow label="Skin reaction" value={session.skinReaction} />
               </div>
 
               {session.aftercareInstructions && (

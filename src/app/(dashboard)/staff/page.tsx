@@ -158,10 +158,7 @@ export default function StaffPage() {
               >
                 <option value="">Select role…</option>
                 {(roles as any[]).map((r) => (
-                  <option
-                    key={r.id}
-                    value={r.id}
-                  >
+                  <option key={r.id} value={r.id}>
                     {r.displayName}
                   </option>
                 ))}
@@ -270,10 +267,7 @@ export default function StaffPage() {
               >
                 <option value="">Select role…</option>
                 {(roles as any[]).map((r) => (
-                  <option
-                    key={r.id}
-                    value={r.id}
-                  >
+                  <option key={r.id} value={r.id}>
                     {r.displayName}
                   </option>
                 ))}

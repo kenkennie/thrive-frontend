@@ -98,10 +98,7 @@ function KpiCard({
           className="w-10 h-10 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: `${accent}18` }}
         >
-          <Icon
-            className="w-5 h-5"
-            style={{ color: accent }}
-          />
+          <Icon className="w-5 h-5" style={{ color: accent }} />
         </div>
         {trend !== undefined && (
           <span
@@ -138,11 +135,7 @@ function ChartTooltip({ active, payload, label, formatter }: any) {
     <div className="bg-card border border-border rounded-xl p-3 shadow-lg">
       <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
-        <p
-          key={i}
-          className="text-xs"
-          style={{ color: p.color }}
-        >
+        <p key={i} className="text-xs" style={{ color: p.color }}>
           {p.name}:{" "}
           <span className="font-semibold">
             {formatter ? formatter(p.value) : p.value}
@@ -333,10 +326,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {loadOv ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <Sk
-              key={i}
-              className="h-36"
-            />
+            <Sk key={i} className="h-36" />
           ))
         ) : overview ? (
           <>
@@ -437,10 +427,7 @@ export default function DashboardPage() {
           {loadAppts ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Sk
-                  key={i}
-                  className="h-12"
-                />
+                <Sk key={i} className="h-12" />
               ))}
             </div>
           ) : todayAppts.length === 0 ? (
@@ -482,32 +469,15 @@ export default function DashboardPage() {
           {!trendData ? (
             <Sk className="h-52 mt-2" />
           ) : (
-            <ResponsiveContainer
-              width="100%"
-              height={220}
-            >
+            <ResponsiveContainer width="100%" height={220}>
               <AreaChart
                 data={trendData}
                 margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
               >
                 <defs>
-                  <linearGradient
-                    id="revGrad"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor={GOLD}
-                      stopOpacity={0.3}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={GOLD}
-                      stopOpacity={0}
-                    />
+                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={GOLD} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={GOLD} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -557,10 +527,7 @@ export default function DashboardPage() {
             {!trendData ? (
               <Sk className="h-24" />
             ) : (
-              <ResponsiveContainer
-                width="100%"
-                height={90}
-              >
+              <ResponsiveContainer width="100%" height={90}>
                 <BarChart
                   data={trendData}
                   barGap={2}
@@ -611,10 +578,7 @@ export default function DashboardPage() {
           {!serviceData ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Sk
-                  key={i}
-                  className="h-10"
-                />
+                <Sk key={i} className="h-10" />
               ))}
             </div>
           ) : (serviceData as any[]).length === 0 ? (
@@ -653,10 +617,7 @@ export default function DashboardPage() {
 
         {/* Peak days */}
         <div className="bg-card rounded-2xl border border-border p-5">
-          <SectionHeader
-            title="Busiest days"
-            sub="Last 30 days"
-          />
+          <SectionHeader title="Busiest days" sub="Last 30 days" />
           {!peakData ? (
             <Sk className="h-40" />
           ) : (
@@ -664,10 +625,7 @@ export default function DashboardPage() {
               {(peakData as any[]).map((d: any, i: number) => {
                 const p = pct(d.count, maxPeak);
                 return (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3"
-                  >
+                  <div key={i} className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground w-8 shrink-0">
                       {d.day.slice(0, 3)}
                     </span>
@@ -704,10 +662,7 @@ export default function DashboardPage() {
 
         {/* Payment method split */}
         <div className="bg-card rounded-2xl border border-border p-5">
-          <SectionHeader
-            title="Payment methods"
-            sub="Today's collections"
-          />
+          <SectionHeader title="Payment methods" sub="Today's collections" />
           {methodData.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <CreditCard className="w-8 h-8 text-muted-foreground/30" />
@@ -715,10 +670,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <ResponsiveContainer
-                width="100%"
-                height={130}
-              >
+              <ResponsiveContainer width="100%" height={130}>
                 <PieChart>
                   <Pie
                     data={methodData}
@@ -731,10 +683,7 @@ export default function DashboardPage() {
                     stroke="none"
                   >
                     {methodData.map((entry, i) => (
-                      <Cell
-                        key={i}
-                        fill={entry.fill}
-                      />
+                      <Cell key={i} fill={entry.fill} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -748,10 +697,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
               <div className="w-full space-y-1.5">
                 {methodData.map((m, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={i} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2.5 h-2.5 rounded-full shrink-0"

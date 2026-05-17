@@ -126,10 +126,7 @@ export function RecordPaymentForm({
             className={cn(inp(), "cursor-pointer")}
           >
             {["KES", "USD", "EUR", "GBP"].map((c) => (
-              <option
-                key={c}
-                value={c}
-              >
+              <option key={c} value={c}>
                 {c}
               </option>
             ))}
@@ -172,11 +169,7 @@ export function RecordPaymentForm({
           <label className="text-sm font-medium text-foreground">
             Payment date
           </label>
-          <input
-            type="date"
-            {...register("paidAt")}
-            className={inp()}
-          />
+          <input type="date" {...register("paidAt")} className={inp()} />
         </div>
         {NEEDS_REFERENCE.includes(method) && (
           <div className="space-y-1.5">

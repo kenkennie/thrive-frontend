@@ -63,10 +63,7 @@ export function DailySchedule({ date, doctorId }: Props) {
           {/* Hour labels */}
           <div className="w-14 shrink-0 border-r border-border">
             {HOURS.map((h) => (
-              <div
-                key={h}
-                className="h-20 flex items-start pt-1 px-2"
-              >
+              <div key={h} className="h-20 flex items-start pt-1 px-2">
                 <span className="text-[10px] text-muted-foreground font-medium">
                   {h}
                 </span>
@@ -75,10 +72,7 @@ export function DailySchedule({ date, doctorId }: Props) {
           </div>
 
           {/* Appointment grid */}
-          <div
-            className="flex-1 relative"
-            style={{ height: totalH }}
-          >
+          <div className="flex-1 relative" style={{ height: totalH }}>
             {/* Hour gridlines */}
             {HOURS.map((_, i) => (
               <div
@@ -98,10 +92,7 @@ export function DailySchedule({ date, doctorId }: Props) {
             ))}
 
             {/* Current time indicator */}
-            <CurrentTimeLine
-              baseMin={BASE_MIN}
-              pxPerMin={PX_PER_MIN}
-            />
+            <CurrentTimeLine baseMin={BASE_MIN} pxPerMin={PX_PER_MIN} />
 
             {/* Appointments */}
             {appointments.map((appt) => {
@@ -121,10 +112,7 @@ export function DailySchedule({ date, doctorId }: Props) {
                   )}
                   style={{ top, height }}
                 >
-                  <AppointmentCard
-                    appointment={appt}
-                    compact={height < 60}
-                  />
+                  <AppointmentCard appointment={appt} compact={height < 60} />
                 </div>
               );
             })}

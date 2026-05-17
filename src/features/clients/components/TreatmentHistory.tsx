@@ -19,10 +19,7 @@ export function TreatmentHistory({ clientId }: { clientId: string }) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-20 rounded-xl bg-muted/50 animate-pulse"
-          />
+          <div key={i} className="h-20 rounded-xl bg-muted/50 animate-pulse" />
         ))}
       </div>
     );

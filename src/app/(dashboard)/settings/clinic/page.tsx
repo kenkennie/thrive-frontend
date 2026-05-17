@@ -60,10 +60,7 @@ export default function ClinicPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Clinic name">
-              <input
-                {...form.register("clinicName")}
-                className={inputCls()}
-              />
+              <input {...form.register("clinicName")} className={inputCls()} />
             </Field>
             <Field label="Tagline">
               <input
@@ -90,10 +87,7 @@ export default function ClinicPage() {
               />
             </Field>
             <Field label="Phone">
-              <input
-                {...form.register("phoneNumber")}
-                className={inputCls()}
-              />
+              <input {...form.register("phoneNumber")} className={inputCls()} />
             </Field>
           </div>
           <Field label="Website">

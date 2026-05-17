@@ -169,10 +169,7 @@ export default function QuoteDetailPage({ params }: Props) {
 
             {/* Action buttons */}
             <div className="flex flex-wrap gap-2 shrink-0">
-              <PdfButton
-                url={financialApi.downloadQuotePdf(id)}
-                label="PDF"
-              />
+              <PdfButton url={financialApi.downloadQuotePdf(id)} label="PDF" />
 
               {canEdit && isDraft && panel !== "edit" && (
                 <button
