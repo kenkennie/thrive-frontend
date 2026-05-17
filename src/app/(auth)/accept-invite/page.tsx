@@ -41,28 +41,27 @@ function AcceptInviteForm() {
     defaultValues: { fullName: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmit = async (data: Schema) => {
-    if (!token) {
-      toast.error("Invalid invite link.");
-      return;
-    }
-    try {
-      const { data: res } = await authApi.acceptInvite({
-        token,
-        password: data.password,
-        fullName: data.fullName,
-      });
-      const payload = res.data;
-      const { tokenStorage } = await import("@/lib/api/client");
-      tokenStorage.setTokens(payload.accessToken, payload.refreshToken);
-      document.cookie = `thrive:session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-      setUser(payload.user);
-      toast.success("Welcome to Thrive Aesthetics!");
-      router.replace("/");
-    } catch (err) {
-      toast.error(parseApiError(err).message);
-    }
-  };
+   const onSubmit = async (data: Schema) => {
+     if (!token) {
+       toast.error("Invalid invite link.");
+       return;
+     }
+     try {
+       const res = await authApi.acceptInvite({
+         token,
+         password: data.password,
+         fullName: data.fullName,
+       });
+       const { tokenStorage } = await import("@/lib/api/client");
+       tokenStorage.setTokens(res.accessToken, res.refreshToken);
+       document.cookie = `thrive:session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+       setUser(res.user);
+       toast.success("Welcome to Thrive Aesthetics!");
+       router.replace("/");
+     } catch (err) {
+       toast.error(parseApiError(err).message);
+     }
+   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
